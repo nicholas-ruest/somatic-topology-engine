@@ -23,6 +23,7 @@ ste-physiology-estimation.workspace = true
 ste-model-runtime.workspace = true
 ste-state-inference.workspace = true
 ste-personalization-memory.workspace = true
+ste-device-interaction.workspace = true
 serde_json.workspace = true
 
 [lints]

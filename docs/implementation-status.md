@@ -17,7 +17,7 @@ only after its required tests and validation pass.
 - [x] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
 - [x] Phase 12 — Implement State Inference without unsupported claims
 - [x] Phase 13 — Implement Personalization Memory and constrained adaptation
-- [ ] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
+- [x] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
 - [ ] Phase 15 — Implement secure CLI, commissioning, and site qualification
 - [ ] Phase 16 — Add optional TypeScript sidecars without weakening the core
 - [ ] Phase 17 — Complete reliability, HIL, security, and optimization hardening
@@ -100,3 +100,9 @@ only after its required tests and validation pass.
 - Participant-scoped types, encrypted append-only vector records, and deterministic retrieval prevent cross-participant queries and evaluation-partition updates by construction and tests.
 - Adaptation candidates require quality-qualified evidence, exact lineage, rate limits, sandboxing, and prospective held-out improvement before promotion, with rollback preserved.
 - Governed view/correct/delete flows destroy participant key material and rebuild derived indexes; the Rust reference adapter is qualified, while RuVector/RVF and Pi benchmarks remain explicitly pending.
+
+## Phase 14 evidence
+
+- Simulator and versioned CrowPi profiles implement the same safe display, RGB, touch, DHT covariate, visible-sensing, and physical-off ports with deterministic snapshots and fault injection.
+- Approved accessible projections include explicit authorization, calibration, contamination, insufficiency, staleness, and fault states; RGB cannot encode inferred valence.
+- Touch debounce, anchor authorization, append-only audit, and peripheral isolation pass workspace gates; exact board-revision HIL, accessibility review, and Pi qualification remain pending hardware and human review.

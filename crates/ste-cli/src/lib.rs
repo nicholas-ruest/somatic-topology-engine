@@ -1363,3 +1363,77 @@ where
         } => Err(MemoryCommandError::ConfirmationRequired),
     }
 }
+/// Governed simulator projection command.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct DeviceSimulatorCommand {
+    /// Approved enumerated projection name.
+    pub projection: String,
+}
+impl DeviceSimulatorCommand {
+    /// Parses `render <approved-name>`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, DeviceSimulatorError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let a = arguments
+            .into_iter()
+            .map(|v| v.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        match a.as_slice() {
+            [verb, p]
+                if verb == "render"
+                    && matches!(
+                        p.as_str(),
+                        "unauthorized"
+                            | "calibrating"
+                            | "contaminated"
+                            | "insufficient"
+                            | "stale"
+                            | "signal-good"
+                            | "anchor-confirmed"
+                    ) =>
+            {
+                Ok(Self {
+                    projection: p.clone(),
+                })
+            }
+            _ => Err(DeviceSimulatorError::InvalidArguments),
+        }
+    }
+}
+/// Simulator composition boundary.
+pub trait DeviceSimulatorOperations {
+    /// Renders fixed text+color and appends audit evidence.
+    fn render(&self, projection: &str) -> Result<String, DeviceSimulatorError>;
+}
+/// Stable simulator command failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DeviceSimulatorError {
+    /// Syntax/unapproved label.
+    InvalidArguments,
+    /// Fresh authorization absent.
+    AuthorizationRequired,
+    /// Isolated simulator port failed.
+    PeripheralFault,
+}
+/// Authorizes immediately before driving simulator ports.
+pub fn execute_device_simulator<E, D>(
+    command: &DeviceSimulatorCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    device: &D,
+) -> Result<String, DeviceSimulatorError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    D: DeviceSimulatorOperations,
+{
+    gate.authorize_command(
+        request,
+        origin,
+        PrivilegedCommand::OperateInteractionSimulator,
+    )
+    .map_err(|_| DeviceSimulatorError::AuthorizationRequired)?;
+    device.render(&command.projection)
+}

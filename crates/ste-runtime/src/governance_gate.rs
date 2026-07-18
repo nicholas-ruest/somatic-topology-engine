@@ -66,6 +66,8 @@ pub enum PrivilegedCommand {
     MutatePersonalization,
     /// Cryptographically erase participant memory and rebuild indexes.
     ErasePersonalization,
+    /// Drive the policy-approved interaction simulator.
+    OperateInteractionSimulator,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.
