@@ -7,7 +7,7 @@ only after its required tests and validation pass.
 - [x] Phase 01 — Bootstrap the Rust architecture and dependency boundaries
 - [x] Phase 02 — Establish threat, safety, supply-chain, and quality baselines
 - [x] Phase 03 — Build configuration, runtime supervision, and deterministic execution
-- [ ] Phase 04 — Implement Consent and Governance as the capture gate
+- [x] Phase 04 — Implement Consent and Governance as the capture gate
 - [ ] Phase 05 — Implement encrypted journals, projections, and data lifecycle
 - [ ] Phase 06 — Implement Radio Acquisition and replay before live hardware
 - [ ] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
@@ -40,3 +40,9 @@ only after its required tests and validation pass.
 - Layered, signed, versioned configuration fails closed, isolates secrets, and produces deterministic non-secret digests.
 - Bounded queues, restart budgets, circuit breaking, cancellation, health degradation, and safe shutdown are covered by deterministic tests.
 - Synthetic replay is deterministic, critical events are never shed, and development-host runtime budgets pass; ARM qualification remains explicitly pending reference hardware.
+
+## Phase 04 evidence
+
+- The authorization aggregate enforces exact participant, space, purpose, policy-version, expiry, retention, revocation, and prohibited-use invariants.
+- Fail-closed policy evaluation, in-memory and atomic durable repository contracts, offline deletion propagation, and separated governance records are tested.
+- Runtime capture publication and privileged commands reevaluate authorization and block immediately on revocation or attempted purpose widening.

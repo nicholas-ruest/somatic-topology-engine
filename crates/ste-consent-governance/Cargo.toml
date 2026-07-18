@@ -8,7 +8,12 @@ publish.workspace = true
 description = "Consent and governance bounded context"
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
 ste-kernel.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
 
 [lints]
 workspace = true

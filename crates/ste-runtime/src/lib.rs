@@ -1,10 +1,15 @@
 //! STE process composition root.
 
 pub mod config;
+mod governance_gate;
 mod health;
 mod supervisor;
 mod synthetic;
 
+pub use governance_gate::{
+    GateError, GovernanceGate, PrivilegedCommand, PrivilegedGrant, RequestOrigin,
+    SafeGovernanceState,
+};
 pub use health::{HealthState, RuntimeHealth, SafeStateReason};
 pub use supervisor::{
     CancellationToken, ChannelError, CircuitState, Criticality, OverflowPolicy, RestartPolicy,
