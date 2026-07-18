@@ -77,6 +77,12 @@ The ADR series turns the [research synthesis](research.md) and [DDD model](ddd/R
 | [ADR-054](adr/ADR-054-version-documentation-runbooks-and-support-matrices.md) | Version Documentation, Runbooks, and Support Matrices |
 | [ADR-055](adr/ADR-055-require-a-production-readiness-review-and-acceptance-evidence.md) | Require a Production Readiness Review and Acceptance Evidence |
 | [ADR-056](adr/ADR-056-operate-post-market-surveillance-and-continuous-risk-review.md) | Operate Post-Market Surveillance and Continuous Risk Review |
+| [ADR-057](adr/ADR-057-build-a-policy-safe-local-operations-ui-with-vite-tailwind-and-threejs.md) | Build a Policy-Safe Local Operations UI with Vite, Tailwind CSS, and Three.js |
+| [ADR-058](adr/ADR-058-run-a-production-local-web-gateway-over-rust-application-services.md) | Run a Production Local Web Gateway over Rust Application Services |
+| [ADR-059](adr/ADR-059-build-a-bounded-live-history-and-replay-query-plane.md) | Build a Bounded Live, History, and Replay Query Plane |
+| [ADR-060](adr/ADR-060-orchestrate-privileged-operations-as-durable-rust-workflows.md) | Orchestrate Privileged Operations as Durable Rust Workflows |
+| [ADR-061](adr/ADR-061-build-the-complete-interactive-ste-operations-workbench.md) | Build the Complete Interactive STE Operations Workbench |
+| [ADR-062](adr/ADR-062-use-real-browser-identity-role-sessions-and-safe-workspace-preferences.md) | Use Real Browser Identity, Role Sessions, and Safe Workspace Preferences |
 
 ## Lifecycle
 

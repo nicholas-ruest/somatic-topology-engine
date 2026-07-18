@@ -4,6 +4,9 @@
 .DS_Store
 .idea/
 .vscode/
+/ui/node_modules/
+/ui/dist/
+/ui/coverage/
 
 # Local secrets and runtime data
 .env
@@ -23,6 +26,7 @@
 /CLAUDE.md
 /skills-lock.json
 /ruvector.db
+**/.claude-flow/
 
 # Fuzzing generates crash artifacts locally; reviewed minimized regression
 # fixtures belong in fuzz/corpus instead.

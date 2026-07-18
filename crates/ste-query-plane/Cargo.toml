@@ -1,0 +1,17 @@
+[package]
+name = "ste-query-plane"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Bounded live, history, and deterministic replay query plane for STE"
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

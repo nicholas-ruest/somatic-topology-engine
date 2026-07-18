@@ -1,0 +1,24 @@
+{
+  "name": "@ste/operator-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build && node scripts/generate-asset-manifest.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "benchmark:visualizations": "node scripts/benchmark-visualizations.mjs"
+  },
+  "dependencies": {
+    "three": "0.178.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.1.11",
+    "jsdom": "26.1.0",
+    "tailwindcss": "4.1.11",
+    "vite": "7.3.6",
+    "vitest": "3.2.7"
+  }
+}

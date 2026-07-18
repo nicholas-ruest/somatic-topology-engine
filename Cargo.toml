@@ -18,6 +18,10 @@ members = [
   "crates/ste-sidecar-policy",
   "crates/ste-release-hardening",
   "crates/ste-commercial-readiness",
+  "crates/ste-ui-gateway",
+  "crates/ste-web-gateway",
+  "crates/ste-query-plane",
+  "crates/ste-workflows",
   "crates/ste-runtime",
   "crates/ste-cli",
 ]
@@ -58,6 +62,10 @@ ste-commissioning = { path = "crates/ste-commissioning" }
 ste-sidecar-policy = { path = "crates/ste-sidecar-policy" }
 ste-release-hardening = { path = "crates/ste-release-hardening" }
 ste-commercial-readiness = { path = "crates/ste-commercial-readiness" }
+ste-ui-gateway = { path = "crates/ste-ui-gateway" }
+ste-web-gateway = { path = "crates/ste-web-gateway" }
+ste-query-plane = { path = "crates/ste-query-plane" }
+ste-workflows = { path = "crates/ste-workflows" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
