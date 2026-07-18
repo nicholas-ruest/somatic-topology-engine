@@ -4,6 +4,7 @@ pub mod config;
 pub mod fault;
 mod governance_gate;
 mod health;
+pub mod sidecar;
 pub mod slo;
 mod supervisor;
 mod synthetic;

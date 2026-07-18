@@ -19,7 +19,7 @@ only after its required tests and validation pass.
 - [x] Phase 13 — Implement Personalization Memory and constrained adaptation
 - [x] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
 - [x] Phase 15 — Implement secure CLI, commissioning, and site qualification
-- [ ] Phase 16 — Add optional TypeScript sidecars without weakening the core
+- [x] Phase 16 — Add optional TypeScript sidecars without weakening the core
 - [ ] Phase 17 — Complete reliability, HIL, security, and optimization hardening
 - [ ] Phase 18 — Build release, commercial operations, and post-market readiness
 
@@ -112,3 +112,9 @@ only after its required tests and validation pass.
 - Authenticated UID-bound Unix IPC enforces stable bounded JSON, role authorization, nonce replay protection, idempotent retries, secret redaction, and typed failure exits.
 - Guided commissioning requires all mandatory checks, signs exact enabled/blocked capability sets, preserves requalification lineage, and cannot qualify from recovery mode or incomplete evidence.
 - The operator CLI covers the supported lifecycle with confirmation/dry-run for reset and passes hostile-input gates; physical reference-device site acceptance remains pending and cannot be enabled by synthetic evidence.
+
+## Phase 16 evidence
+
+- No measured Rust capability gap exists, so no production TypeScript, Node, AgentDB, DSPy, or Ruflo dependency was added.
+- Signed sidecar manifests and the Rust supervisor bind executable/contract digests, advisory-only allowlists, purpose/claim/capability ceilings, offline sandboxing, resource limits, authentication, and deadlines.
+- Absent, hung, corrupt, killed, or disabled sidecars leave authorization, capture, inference validity, persistence authority, hardware, and the Rust core unaffected; removal and fallback are documented.
