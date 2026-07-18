@@ -1,0 +1,22 @@
+[package]
+name = "ste-runtime"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Composition root for the Somatic Topology Engine"
+
+[dependencies]
+ste-contracts.workspace = true
+ste-radio-acquisition.workspace = true
+ste-signal-observation.workspace = true
+ste-physiology-estimation.workspace = true
+ste-state-inference.workspace = true
+ste-personalization-memory.workspace = true
+ste-experiment-validation.workspace = true
+ste-device-interaction.workspace = true
+ste-consent-governance.workspace = true
+
+[lints]
+workspace = true

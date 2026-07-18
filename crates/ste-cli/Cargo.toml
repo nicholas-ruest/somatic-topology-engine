@@ -1,0 +1,18 @@
+[package]
+name = "ste-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Local operator CLI for the Somatic Topology Engine"
+
+[[bin]]
+name = "ste"
+path = "src/main.rs"
+
+[dependencies]
+ste-runtime = { path = "../ste-runtime" }
+
+[lints]
+workspace = true

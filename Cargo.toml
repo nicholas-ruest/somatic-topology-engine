@@ -1,0 +1,49 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/ste-kernel",
+  "crates/ste-contracts",
+  "crates/ste-radio-acquisition",
+  "crates/ste-signal-observation",
+  "crates/ste-physiology-estimation",
+  "crates/ste-state-inference",
+  "crates/ste-personalization-memory",
+  "crates/ste-experiment-validation",
+  "crates/ste-device-interaction",
+  "crates/ste-consent-governance",
+  "crates/ste-runtime",
+  "crates/ste-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/nicholas-ruest/somatic-topology-engine"
+publish = false
+
+[workspace.dependencies]
+ste-kernel = { path = "crates/ste-kernel" }
+ste-contracts = { path = "crates/ste-contracts" }
+ste-radio-acquisition = { path = "crates/ste-radio-acquisition" }
+ste-signal-observation = { path = "crates/ste-signal-observation" }
+ste-physiology-estimation = { path = "crates/ste-physiology-estimation" }
+ste-state-inference = { path = "crates/ste-state-inference" }
+ste-personalization-memory = { path = "crates/ste-personalization-memory" }
+ste-experiment-validation = { path = "crates/ste-experiment-validation" }
+ste-device-interaction = { path = "crates/ste-device-interaction" }
+ste-consent-governance = { path = "crates/ste-consent-governance" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+all = "deny"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+panic = "abort"
+strip = "symbols"

@@ -1,0 +1,31 @@
+# Build and editor output
+/target/
+**/*.rs.bk
+.DS_Store
+.idea/
+.vscode/
+
+# Local secrets and runtime data
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+
+# Development-agent orchestration (not product source)
+/.agents/
+/.claude/
+/.claude-flow/
+/.codex/
+/.swarm/
+/.mcp.json
+/CLAUDE.md
+/skills-lock.json
+/ruvector.db
+
+# Keep product planning, documentation, source, and tests tracked.
+!/.plans/
+!/docs/
+!/crates/
+!/tests/
