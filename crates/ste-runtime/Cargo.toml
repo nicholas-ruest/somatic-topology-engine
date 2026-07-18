@@ -8,6 +8,11 @@ publish.workspace = true
 description = "Composition root for the Somatic Topology Engine"
 
 [dependencies]
+ed25519-dalek.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tokio.workspace = true
 ste-contracts.workspace = true
 ste-radio-acquisition.workspace = true
 ste-signal-observation.workspace = true
@@ -17,6 +22,9 @@ ste-personalization-memory.workspace = true
 ste-experiment-validation.workspace = true
 ste-device-interaction.workspace = true
 ste-consent-governance.workspace = true
+
+[dev-dependencies]
+ed25519-dalek = { workspace = true, features = ["rand_core"] }
 
 [lints]
 workspace = true

@@ -6,7 +6,7 @@ only after its required tests and validation pass.
 
 - [x] Phase 01 — Bootstrap the Rust architecture and dependency boundaries
 - [x] Phase 02 — Establish threat, safety, supply-chain, and quality baselines
-- [ ] Phase 03 — Build configuration, runtime supervision, and deterministic execution
+- [x] Phase 03 — Build configuration, runtime supervision, and deterministic execution
 - [ ] Phase 04 — Implement Consent and Governance as the capture gate
 - [ ] Phase 05 — Implement encrypted journals, projections, and data lifecycle
 - [ ] Phase 06 — Implement Radio Acquisition and replay before live hardware
@@ -34,3 +34,9 @@ only after its required tests and validation pass.
 - Threat, privacy, abuse, trust-boundary, data-classification, and hazard baselines are versioned with owners and verification references.
 - Intended-use, prohibited-use, claim-evidence, risk-acceptance, vulnerability-disclosure, and quality-record controls are defined.
 - CI enforces dependency, license, advisory, secret, unsafe-code, SBOM, reproducibility, fuzz-build, and provenance gates.
+
+## Phase 03 evidence
+
+- Layered, signed, versioned configuration fails closed, isolates secrets, and produces deterministic non-secret digests.
+- Bounded queues, restart budgets, circuit breaking, cancellation, health degradation, and safe shutdown are covered by deterministic tests.
+- Synthetic replay is deterministic, critical events are never shed, and development-host runtime budgets pass; ARM qualification remains explicitly pending reference hardware.

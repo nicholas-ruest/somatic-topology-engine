@@ -1,5 +1,17 @@
 //! STE process composition root.
 
+pub mod config;
+mod health;
+mod supervisor;
+mod synthetic;
+
+pub use health::{HealthState, RuntimeHealth, SafeStateReason};
+pub use supervisor::{
+    CancellationToken, ChannelError, CircuitState, Criticality, OverflowPolicy, RestartPolicy,
+    Supervisor, SupervisorError, TaskFailure, TaskStatus,
+};
+pub use synthetic::{ClockOverflow, DeterministicClock, SyntheticEvent, SyntheticPipeline};
+
 /// Context catalog used by diagnostics without introducing context-to-context
 /// dependencies.
 #[must_use]
