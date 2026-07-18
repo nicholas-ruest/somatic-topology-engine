@@ -1,0 +1,10 @@
+{
+  "schema": "ste-storage-fault-corpus-v1",
+  "cases": [
+    {"file": "valid-v1.jsonl", "expected": "recover_and_upcast"},
+    {"file": "torn-tail.jsonl", "expected": "recover_last_verified"},
+    {"file": "checksum-mismatch.jsonl", "expected": "reject_corrupt_record"},
+    {"file": "unknown-schema.jsonl", "expected": "reject_unsupported_schema"},
+    {"file": "interrupted-migration.json", "expected": "preserve_original_bytes"}
+  ]
+}

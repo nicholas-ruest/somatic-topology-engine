@@ -13,6 +13,8 @@ path = "src/main.rs"
 
 [dependencies]
 ste-runtime = { path = "../ste-runtime" }
+ste-consent-governance.workspace = true
+ste-storage.workspace = true
 
 [lints]
 workspace = true

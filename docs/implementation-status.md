@@ -8,7 +8,7 @@ only after its required tests and validation pass.
 - [x] Phase 02 — Establish threat, safety, supply-chain, and quality baselines
 - [x] Phase 03 — Build configuration, runtime supervision, and deterministic execution
 - [x] Phase 04 — Implement Consent and Governance as the capture gate
-- [ ] Phase 05 — Implement encrypted journals, projections, and data lifecycle
+- [x] Phase 05 — Implement encrypted journals, projections, and data lifecycle
 - [ ] Phase 06 — Implement Radio Acquisition and replay before live hardware
 - [ ] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
 - [ ] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
@@ -46,3 +46,9 @@ only after its required tests and validation pass.
 - The authorization aggregate enforces exact participant, space, purpose, policy-version, expiry, retention, revocation, and prohibited-use invariants.
 - Fail-closed policy evaluation, in-memory and atomic durable repository contracts, offline deletion propagation, and separated governance records are tested.
 - Runtime capture publication and privileged commands reevaluate authorization and block immediately on revocation or attempted purpose widening.
+
+## Phase 05 evidence
+
+- Checksummed partitioned journals, bounded chunks, upcasters, idempotent projections, atomic checkpoints, compaction, and recovery pass fault-injection tests.
+- Authenticated per-class envelope encryption, managed key rotation/erasure, portable export, restore, deletion propagation, reset, and decommissioning fail closed.
+- Authorized storage CLI operations, destructive confirmation, corruption corpora, and recovery fault matrices are executable; unauthenticated direct invocation is denied.

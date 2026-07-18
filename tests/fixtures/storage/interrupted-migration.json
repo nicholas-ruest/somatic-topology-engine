@@ -1,0 +1,1 @@
+{"source":"valid-v1.jsonl","inject_failure":"after_upcast_before_atomic_commit","expected_source_sha256_unchanged":true}

@@ -32,6 +32,16 @@ pub enum PrivilegedCommand {
     ExportSensitiveData,
     /// Delete governed sensing data.
     DeleteSensitiveData,
+    /// Inspect journal integrity and metadata.
+    InspectJournal,
+    /// Rebuild derived projections from verified journal records.
+    RebuildProjection,
+    /// Recover storage to the last verified state.
+    RecoverStorage,
+    /// Erase governed data and restore capture-disabled defaults.
+    FactoryReset,
+    /// Erase keys/data and permanently retire the device identity.
+    Decommission,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.

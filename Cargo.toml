@@ -11,6 +11,7 @@ members = [
   "crates/ste-experiment-validation",
   "crates/ste-device-interaction",
   "crates/ste-consent-governance",
+  "crates/ste-storage",
   "crates/ste-runtime",
   "crates/ste-cli",
 ]
@@ -25,11 +26,14 @@ publish = false
 
 [workspace.dependencies]
 ed25519-dalek = "2.1"
+chacha20poly1305 = { version = "0.10", default-features = false, features = ["std"] }
 proptest = "1.6"
+rand_core = { version = "0.6", features = ["getrandom"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
 tokio = { version = "1", features = ["sync", "rt", "macros", "time", "test-util"] }
+zeroize = { version = "1.8", features = ["derive"] }
 ste-kernel = { path = "crates/ste-kernel" }
 ste-contracts = { path = "crates/ste-contracts" }
 ste-radio-acquisition = { path = "crates/ste-radio-acquisition" }
@@ -40,6 +44,7 @@ ste-personalization-memory = { path = "crates/ste-personalization-memory" }
 ste-experiment-validation = { path = "crates/ste-experiment-validation" }
 ste-device-interaction = { path = "crates/ste-device-interaction" }
 ste-consent-governance = { path = "crates/ste-consent-governance" }
+ste-storage = { path = "crates/ste-storage" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
