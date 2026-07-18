@@ -675,6 +675,7 @@ name = "ste-cli"
 version = "0.1.0"
 dependencies = [
  "ste-consent-governance",
+ "ste-radio-acquisition",
  "ste-runtime",
  "ste-storage",
 ]
@@ -736,7 +737,13 @@ dependencies = [
 name = "ste-radio-acquisition"
 version = "0.1.0"
 dependencies = [
+ "proptest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "ste-contracts",
  "ste-kernel",
+ "uuid",
 ]
 
 [[package]]

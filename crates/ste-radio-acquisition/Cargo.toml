@@ -8,7 +8,15 @@ publish.workspace = true
 description = "Radio acquisition bounded context"
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+ste-contracts.workspace = true
 ste-kernel.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
 
 [lints]
 workspace = true

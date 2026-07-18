@@ -2,7 +2,7 @@
 
 use std::process::ExitCode;
 
-use ste_cli::StorageCommand;
+use ste_cli::{ReplayCommand, StorageCommand};
 
 fn main() -> ExitCode {
     let arguments = std::env::args().skip(1).collect::<Vec<_>>();
@@ -18,6 +18,14 @@ fn main() -> ExitCode {
         // Direct process invocation has no authenticated local-IPC identity or
         // fresh policy decision. The daemon composition boundary executes the
         // parsed command only after supplying both.
+        eprintln!("active authorization required");
+        return ExitCode::from(77);
+    }
+    if arguments.first().map(String::as_str) == Some("replay") {
+        if ReplayCommand::parse(&arguments[1..]).is_err() {
+            eprintln!("invalid replay command arguments");
+            return ExitCode::from(2);
+        }
         eprintln!("active authorization required");
         return ExitCode::from(77);
     }

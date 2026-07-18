@@ -1,11 +1,156 @@
 //! Authenticated operator boundaries for the local STE process.
 
 use std::fmt;
+use std::path::{Path, PathBuf};
 
 use ste_consent_governance::domain::{AuthorizationRequest, PolicyDecision};
+use ste_radio_acquisition::replay::{ReplayLimits, ReplayReport, parse_pcap, parse_rvcsi};
 use ste_runtime::{GovernanceGate, PrivilegedCommand, RequestOrigin};
 use ste_storage::lifecycle::LifecycleManager;
 use ste_storage::{DataClass, EventUpcaster, JournalStore};
+
+/// Supported deterministic offline capture framing.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ReplayFormat {
+    /// STE's bounded rvCSI interchange framing.
+    Rvcsi,
+    /// Classic PCAP containing bounded rvCSI records.
+    Pcap,
+}
+
+/// Authorized replay request parsed from `ste replay` arguments.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ReplayCommand {
+    /// Governed local capture path.
+    pub input: PathBuf,
+    /// Explicit parser selection.
+    pub format: ReplayFormat,
+    /// Stable machine-readable output request.
+    pub json: bool,
+}
+
+impl ReplayCommand {
+    /// Parses `<path> --format rvcsi|pcap [--json]`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, ReplayCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|value| value.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        if args.len() < 3 || args.get(1).map(String::as_str) != Some("--format") {
+            return Err(ReplayCommandError::InvalidArguments);
+        }
+        let format = match args[2].as_str() {
+            "rvcsi" => ReplayFormat::Rvcsi,
+            "pcap" => ReplayFormat::Pcap,
+            _ => return Err(ReplayCommandError::InvalidArguments),
+        };
+        if args.len() > 4 || (args.len() == 4 && args[3] != "--json") {
+            return Err(ReplayCommandError::InvalidArguments);
+        }
+        let input = PathBuf::from(&args[0]);
+        if input.as_os_str().is_empty() {
+            return Err(ReplayCommandError::InvalidArguments);
+        }
+        Ok(Self {
+            input,
+            format,
+            json: args.get(3).is_some_and(|value| value == "--json"),
+        })
+    }
+}
+
+/// Injected bounded file reader for replay input.
+pub trait ReplayInput {
+    /// Reads no more than the supplied byte limit.
+    fn read_bounded(&self, path: &Path, maximum: usize) -> Result<Vec<u8>, ReplayCommandError>;
+}
+
+/// Local filesystem implementation with pre/post read bounds.
+pub struct FilesystemReplayInput;
+
+impl ReplayInput for FilesystemReplayInput {
+    fn read_bounded(&self, path: &Path, maximum: usize) -> Result<Vec<u8>, ReplayCommandError> {
+        let metadata = std::fs::metadata(path).map_err(|_| ReplayCommandError::InputUnavailable)?;
+        if metadata.len() > maximum as u64 {
+            return Err(ReplayCommandError::InputTooLarge);
+        }
+        let bytes = std::fs::read(path).map_err(|_| ReplayCommandError::InputUnavailable)?;
+        if bytes.len() > maximum {
+            return Err(ReplayCommandError::InputTooLarge);
+        }
+        Ok(bytes)
+    }
+}
+
+/// Stable replay outcome preserving every rejection and sequence gap.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ReplaySummary {
+    /// Structurally accepted frames.
+    pub accepted: u64,
+    /// Non-finite rejected records.
+    pub rejected_non_finite: u64,
+    /// Implausible rejected records.
+    pub rejected_implausible: u64,
+    /// Malformed rejected records.
+    pub rejected_malformed: u64,
+    /// Missing sequence values.
+    pub missing: u64,
+}
+
+impl From<&ReplayReport> for ReplaySummary {
+    fn from(report: &ReplayReport) -> Self {
+        Self {
+            accepted: report.frames.len() as u64,
+            rejected_non_finite: report.rejected_non_finite,
+            rejected_implausible: report.rejected_implausible,
+            rejected_malformed: report.rejected_malformed,
+            missing: report.gaps.iter().map(|gap| gap.missing).sum(),
+        }
+    }
+}
+
+/// Replay failure without capture contents or paths in its display.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ReplayCommandError {
+    /// CLI syntax is invalid.
+    InvalidArguments,
+    /// Current policy denied governed replay access.
+    AuthorizationRequired,
+    /// Capture could not be read.
+    InputUnavailable,
+    /// Capture exceeds the bounded parser budget.
+    InputTooLarge,
+    /// Capture framing or records failed bounded parsing.
+    InvalidCapture,
+}
+
+/// Rechecks governance before reading or parsing governed capture bytes.
+pub fn execute_replay<E, R>(
+    command: &ReplayCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    input: &R,
+) -> Result<ReplaySummary, ReplayCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    R: ReplayInput,
+{
+    gate.authorize_command(request, origin, PrivilegedCommand::ReplayCapture)
+        .map_err(|_| ReplayCommandError::AuthorizationRequired)?;
+    let limits = ReplayLimits::default();
+    let bytes = input.read_bounded(&command.input, limits.max_input_bytes)?;
+    let report = match command.format {
+        ReplayFormat::Rvcsi => parse_rvcsi(&bytes, limits),
+        ReplayFormat::Pcap => parse_pcap(&bytes, limits),
+    }
+    .map_err(|_| ReplayCommandError::InvalidCapture)?;
+    Ok(ReplaySummary::from(&report))
+}
 
 /// Storage lifecycle command parsed from the supported operator surface.
 #[derive(Clone, Debug, Eq, PartialEq)]

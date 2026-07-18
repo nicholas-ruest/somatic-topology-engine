@@ -9,7 +9,7 @@ only after its required tests and validation pass.
 - [x] Phase 03 — Build configuration, runtime supervision, and deterministic execution
 - [x] Phase 04 — Implement Consent and Governance as the capture gate
 - [x] Phase 05 — Implement encrypted journals, projections, and data lifecycle
-- [ ] Phase 06 — Implement Radio Acquisition and replay before live hardware
+- [x] Phase 06 — Implement Radio Acquisition and replay before live hardware
 - [ ] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
 - [ ] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
 - [ ] Phase 09 — Implement Experiment Validation and dataset governance
@@ -52,3 +52,9 @@ only after its required tests and validation pass.
 - Checksummed partitioned journals, bounded chunks, upcasters, idempotent projections, atomic checkpoints, compaction, and recovery pass fault-injection tests.
 - Authenticated per-class envelope encryption, managed key rotation/erasure, portable export, restore, deletion propagation, reset, and decommissioning fail closed.
 - Authorized storage CLI operations, destructive confirmation, corruption corpora, and recovery fault matrices are executable; unauthenticated direct invocation is denied.
+
+## Phase 06 evidence
+
+- Radio domain and contract tests enforce plausible finite frames, exact provenance/calibration, sequence gaps, health statistics, policy gating, and bounded backpressure.
+- Bounded deterministic RVCSI/PCAP replay, hostile malformed inputs, anti-corruption conversion, and parser fuzz builds pass without panics.
+- Replay CLI and acquisition budgets pass on the development host; the pinned live adapter and compatibility procedure are ready, while physical Pi 4 qualification remains explicitly pending hardware.

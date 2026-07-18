@@ -15,6 +15,7 @@ path = "src/main.rs"
 ste-runtime = { path = "../ste-runtime" }
 ste-consent-governance.workspace = true
 ste-storage.workspace = true
+ste-radio-acquisition.workspace = true
 
 [lints]
 workspace = true

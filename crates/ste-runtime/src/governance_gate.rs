@@ -42,6 +42,8 @@ pub enum PrivilegedCommand {
     FactoryReset,
     /// Erase keys/data and permanently retire the device identity.
     Decommission,
+    /// Read and validate a governed offline capture for deterministic replay.
+    ReplayCapture,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.
