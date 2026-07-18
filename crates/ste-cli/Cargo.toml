@@ -17,6 +17,8 @@ ste-consent-governance.workspace = true
 ste-storage.workspace = true
 ste-radio-acquisition.workspace = true
 ste-signal-observation.workspace = true
+ste-observability.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

@@ -1,8 +1,10 @@
 //! STE process composition root.
 
 pub mod config;
+pub mod fault;
 mod governance_gate;
 mod health;
+pub mod slo;
 mod supervisor;
 mod synthetic;
 

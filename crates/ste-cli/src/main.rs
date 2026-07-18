@@ -2,7 +2,7 @@
 
 use std::process::ExitCode;
 
-use ste_cli::{ObservationReplayCommand, ReplayCommand, StorageCommand};
+use ste_cli::{DiagnosticsCommand, ObservationReplayCommand, ReplayCommand, StorageCommand};
 
 fn main() -> ExitCode {
     let arguments = std::env::args().skip(1).collect::<Vec<_>>();
@@ -32,6 +32,14 @@ fn main() -> ExitCode {
         }
         if ReplayCommand::parse(&arguments[1..]).is_err() {
             eprintln!("invalid replay command arguments");
+            return ExitCode::from(2);
+        }
+        eprintln!("active authorization required");
+        return ExitCode::from(77);
+    }
+    if arguments.first().map(String::as_str) == Some("diagnostics") {
+        if DiagnosticsCommand::parse(&arguments[1..]).is_err() {
+            eprintln!("invalid diagnostics command arguments");
             return ExitCode::from(2);
         }
         eprintln!("active authorization required");

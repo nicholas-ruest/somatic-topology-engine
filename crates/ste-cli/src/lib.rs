@@ -4,6 +4,7 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 
 use ste_consent_governance::domain::{AuthorizationRequest, PolicyDecision};
+use ste_observability::{HealthSnapshot, SupportBundleBuilder};
 use ste_radio_acquisition::replay::{ReplayLimits, ReplayReport, parse_pcap, parse_rvcsi};
 use ste_runtime::{GovernanceGate, PrivilegedCommand, RequestOrigin};
 use ste_signal_observation::dsp::{DspGraphSpec, PrimitiveCsiFrame};
@@ -11,6 +12,110 @@ use ste_signal_observation::{
     AlgorithmVersion, ContentAddressedEvidenceRepository, DspVersion, ObservationReplay,
     ObservationWindowId, PartitionRole, ReplayEvidenceFrame, WindowBounds, WindowPolicy,
 };
+
+/// Local payload-free diagnostics or support-preview request.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DiagnosticsCommand {
+    /// Stable local health snapshot.
+    Health,
+    /// Exact manifest preview; no bundle export.
+    SupportPreview,
+}
+
+impl DiagnosticsCommand {
+    /// Parses `health` or `support preview`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, DiagnosticsError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|value| value.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        match args
+            .iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>()
+            .as_slice()
+        {
+            ["health"] | ["health", "--json"] => Ok(Self::Health),
+            ["support", "preview"] | ["support", "preview", "--json"] => Ok(Self::SupportPreview),
+            _ => Err(DiagnosticsError::InvalidArguments),
+        }
+    }
+}
+
+/// Injected diagnostics boundary.
+pub trait DiagnosticsOperations {
+    /// Returns stable JSON health without governed payload fields.
+    fn health_json(&self) -> Result<String, DiagnosticsError>;
+    /// Returns only the exact redacted support manifest preview.
+    fn support_preview_json(&self) -> Result<String, DiagnosticsError>;
+}
+
+/// Concrete adapter over the local Rust observability APIs.
+pub struct LocalDiagnostics<'a> {
+    health: &'a HealthSnapshot,
+    support: &'a SupportBundleBuilder<'a>,
+}
+
+impl<'a> LocalDiagnostics<'a> {
+    /// Composes snapshot and preview builder without export authority.
+    #[must_use]
+    pub const fn new(health: &'a HealthSnapshot, support: &'a SupportBundleBuilder<'a>) -> Self {
+        Self { health, support }
+    }
+}
+
+impl DiagnosticsOperations for LocalDiagnostics<'_> {
+    fn health_json(&self) -> Result<String, DiagnosticsError> {
+        serde_json::to_string(self.health).map_err(|_| DiagnosticsError::Encoding)
+    }
+
+    fn support_preview_json(&self) -> Result<String, DiagnosticsError> {
+        let preview = self
+            .support
+            .preview()
+            .map_err(|_| DiagnosticsError::Encoding)?;
+        serde_json::to_string(&preview.manifest).map_err(|_| DiagnosticsError::Encoding)
+    }
+}
+
+/// Stable diagnostics boundary failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum DiagnosticsError {
+    /// Unsupported arguments.
+    InvalidArguments,
+    /// Current policy denied the request.
+    AuthorizationRequired,
+    /// Redacted JSON/manifest encoding failed.
+    Encoding,
+}
+
+/// Executes diagnostics only after a fresh governance decision.
+pub fn execute_diagnostics<E, D>(
+    command: DiagnosticsCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    diagnostics: &D,
+) -> Result<String, DiagnosticsError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    D: DiagnosticsOperations,
+{
+    let privileged = match command {
+        DiagnosticsCommand::Health => PrivilegedCommand::ViewDiagnostics,
+        DiagnosticsCommand::SupportPreview => PrivilegedCommand::PreviewSupportBundle,
+    };
+    gate.authorize_command(request, origin, privileged)
+        .map_err(|_| DiagnosticsError::AuthorizationRequired)?;
+    match command {
+        DiagnosticsCommand::Health => diagnostics.health_json(),
+        DiagnosticsCommand::SupportPreview => diagnostics.support_preview_json(),
+    }
+}
 use ste_storage::lifecycle::LifecycleManager;
 use ste_storage::{DataClass, EventUpcaster, JournalStore};
 

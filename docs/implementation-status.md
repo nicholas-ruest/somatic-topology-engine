@@ -11,7 +11,7 @@ only after its required tests and validation pass.
 - [x] Phase 05 — Implement encrypted journals, projections, and data lifecycle
 - [x] Phase 06 — Implement Radio Acquisition and replay before live hardware
 - [x] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
-- [ ] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
+- [x] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
 - [ ] Phase 09 — Implement Experiment Validation and dataset governance
 - [ ] Phase 10 — Implement and validate respiration-first Physiology Estimation
 - [ ] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
@@ -64,3 +64,9 @@ only after its required tests and validation pass.
 - Observation-only domain types enforce monotonic contamination, quality/abstention, exact provenance, bounded windows, and immutable content-addressed artifacts.
 - Versioned finite DSP passes golden, tolerance, phase-wrap, hostile-graph, and replay tests without downstream claim vocabulary.
 - Governed observation replay preserves source references and development numerical/performance budgets; physical ARM profiling remains pending hardware.
+
+## Phase 08 evidence
+
+- Local bounded metrics, traces, separated records, health snapshots, redaction, drop counters, and preview-bound checksummed support bundles pass canary tests.
+- Eleven typed, owned SLO budgets and regression comparisons cover continuity, coverage, latency, freshness, recovery, compute, storage, temperature, and power.
+- Cross-layer synthetic fault and benchmark suites pass on the development host; Pi thermal, power, and soak evidence remains an explicit release blocker.

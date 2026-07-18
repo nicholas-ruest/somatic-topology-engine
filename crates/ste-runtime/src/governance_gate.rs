@@ -44,6 +44,10 @@ pub enum PrivilegedCommand {
     Decommission,
     /// Read and validate a governed offline capture for deterministic replay.
     ReplayCapture,
+    /// View payload-free local diagnostics.
+    ViewDiagnostics,
+    /// Preview the exact redacted support-bundle manifest.
+    PreviewSupportBundle,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.
