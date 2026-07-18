@@ -14,7 +14,7 @@ only after its required tests and validation pass.
 - [x] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
 - [x] Phase 09 — Implement Experiment Validation and dataset governance
 - [x] Phase 10 — Implement and validate respiration-first Physiology Estimation
-- [ ] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
+- [x] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
 - [ ] Phase 12 — Implement State Inference without unsupported claims
 - [ ] Phase 13 — Implement Personalization Memory and constrained adaptation
 - [ ] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
@@ -82,3 +82,9 @@ only after its required tests and validation pass.
 - The physiology domain exposes respiration only and enforces validation promotion plus motion, quality, OOD, calibration, duration, confidence, and operating-envelope abstention.
 - A deterministic content-digested baseline passes exact known-answer/parity and held-out evaluation mechanics without granting promotion.
 - Repository, registry, governed CLI, model card, negative report, and host benchmark pass; real belt-reference and Pi gates remain pending, so respiration stays disabled and non-medical.
+
+## Phase 11 evidence
+
+- Ed25519-signed, content-addressed packages bind weights, feature/preprocessing/calibration digests, model card, lineage, licensing, and exact software/hardware compatibility; adversarial fixtures fail closed.
+- The registry preserves immutable quarantine-to-revocation decisions, permits serving only from an active promoted package, and atomically activates, suspends, and rolls back with known-answer verification.
+- Frozen calibration, OOD/selective-risk evaluation, signed capability policy, governed CLI operations, and experimental isolation pass workspace gates; Pi HIL, thermal, and soak qualification remain pending reference hardware.

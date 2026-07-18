@@ -54,6 +54,10 @@ pub enum PrivilegedCommand {
     PromoteValidatedCapability,
     /// Record an explicit rejection from immutable validation evidence.
     RejectValidatedCapability,
+    /// Inspect payload-free model lifecycle state.
+    ViewModelLifecycle,
+    /// Mutate verified model lifecycle state.
+    MutateModelLifecycle,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.

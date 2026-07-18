@@ -1,9 +1,11 @@
 //! Authenticated operator boundaries for the local STE process.
 
+use std::cell::RefCell;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
 use ste_consent_governance::domain::{AuthorizationRequest, PolicyDecision};
+use ste_model_runtime::{package::VerifiedPackage, registry::ModelRegistry};
 use ste_observability::{HealthSnapshot, SupportBundleBuilder};
 use ste_radio_acquisition::replay::{ReplayLimits, ReplayReport, parse_pcap, parse_rvcsi};
 use ste_runtime::{GovernanceGate, PrivilegedCommand, RequestOrigin};
@@ -934,5 +936,232 @@ where
     match command {
         RespirationCommand::Status { model_id } => operations.status(model_id),
         RespirationCommand::Validate { run_id } => operations.validate(run_id),
+    }
+}
+
+/// Governed local model lifecycle operation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ModelLifecycleCommand {
+    /// Reports payload-free registry state.
+    Status {
+        /// Exact immutable model identifier.
+        model_id: String,
+    },
+    /// Activates only after the service reruns known-answer checks.
+    Activate {
+        /// Exact promoted model identifier.
+        model_id: String,
+    },
+    /// Runs health/KAT and automatically suspends and rolls back on failure.
+    Health,
+    /// Explicitly restores the previously verified model.
+    Rollback,
+}
+impl ModelLifecycleCommand {
+    /// Parses the deliberately narrow lifecycle command grammar.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, ModelLifecycleCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|value| value.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        match args.as_slice() {
+            [verb, id]
+                if matches!(verb.as_str(), "status" | "activate")
+                    && !id.trim().is_empty()
+                    && id.len() <= 256 =>
+            {
+                if verb == "status" {
+                    Ok(Self::Status {
+                        model_id: id.clone(),
+                    })
+                } else {
+                    Ok(Self::Activate {
+                        model_id: id.clone(),
+                    })
+                }
+            }
+            [verb] if verb == "health" => Ok(Self::Health),
+            [verb] if verb == "rollback" => Ok(Self::Rollback),
+            _ => Err(ModelLifecycleCommandError::InvalidArguments),
+        }
+    }
+}
+
+/// Authenticated model lifecycle composition boundary.
+pub trait ModelLifecycleOperations {
+    /// Returns state without weights or model outputs.
+    fn status(&self, model_id: &str) -> Result<String, ModelLifecycleCommandError>;
+    /// Performs pre-activation known-answer verification and atomic selection.
+    fn activate(&self, model_id: &str) -> Result<String, ModelLifecycleCommandError>;
+    /// Checks active health and rolls back atomically on failure.
+    fn health(&self) -> Result<String, ModelLifecycleCommandError>;
+    /// Restores the exact previous verified package.
+    fn rollback(&self) -> Result<String, ModelLifecycleCommandError>;
+}
+
+/// Known-answer and local health verifier bound to exact package content.
+pub trait KnownAnswerGate {
+    /// Returns true only when numerical output matches the frozen fixture.
+    fn passes(&self, package: &VerifiedPackage) -> bool;
+}
+
+/// Atomic local lifecycle adapter with mandatory pre/post-activation KAT.
+pub struct LocalModelLifecycle<G> {
+    registry: RefCell<ModelRegistry>,
+    known_answer: G,
+    evidence: [u8; 32],
+    approver: String,
+}
+impl<G> LocalModelLifecycle<G> {
+    /// Composes a promoted registry with immutable operational evidence.
+    pub fn new(
+        registry: ModelRegistry,
+        known_answer: G,
+        evidence: [u8; 32],
+        approver: impl Into<String>,
+    ) -> Result<Self, ModelLifecycleCommandError> {
+        let approver = approver.into();
+        if approver.trim().is_empty() {
+            return Err(ModelLifecycleCommandError::LifecycleGateFailed);
+        }
+        Ok(Self {
+            registry: RefCell::new(registry),
+            known_answer,
+            evidence,
+            approver,
+        })
+    }
+
+    /// Runs a read-only closure against registry state for composition/testing.
+    pub fn inspect<T>(&self, inspect: impl FnOnce(&ModelRegistry) -> T) -> T {
+        inspect(&self.registry.borrow())
+    }
+}
+impl<G: KnownAnswerGate> ModelLifecycleOperations for LocalModelLifecycle<G> {
+    fn status(&self, model_id: &str) -> Result<String, ModelLifecycleCommandError> {
+        self.registry
+            .borrow()
+            .state(model_id)
+            .map(|state| format!("{state:?}"))
+            .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)
+    }
+
+    fn activate(&self, model_id: &str) -> Result<String, ModelLifecycleCommandError> {
+        let registry = self.registry.borrow();
+        let candidate = registry
+            .package(model_id)
+            .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)?;
+        if !self.known_answer.passes(candidate) {
+            return Err(ModelLifecycleCommandError::LifecycleGateFailed);
+        }
+        drop(registry);
+        self.registry
+            .borrow_mut()
+            .activate(model_id, self.evidence, &self.approver)
+            .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)?;
+        let passes = self
+            .registry
+            .borrow()
+            .active()
+            .is_some_and(|package| self.known_answer.passes(package));
+        if !passes {
+            let mut registry = self.registry.borrow_mut();
+            registry
+                .suspend(model_id, self.evidence, &self.approver)
+                .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)?;
+            // The first activation has no rollback target and safely remains
+            // suspended. Upgrades restore the prior package.
+            let _ = registry.rollback(self.evidence, &self.approver);
+            return Err(ModelLifecycleCommandError::LifecycleGateFailed);
+        }
+        Ok("active; known-answer verified; non-production unless policy enabled".into())
+    }
+
+    fn health(&self) -> Result<String, ModelLifecycleCommandError> {
+        let (id, passes) = {
+            let registry = self.registry.borrow();
+            let active = registry
+                .active()
+                .ok_or(ModelLifecycleCommandError::LifecycleGateFailed)?;
+            (
+                active.package().metadata().model_id.clone(),
+                self.known_answer.passes(active),
+            )
+        };
+        if passes {
+            return Ok("healthy; known-answer verified".into());
+        }
+        let mut registry = self.registry.borrow_mut();
+        registry
+            .suspend(&id, self.evidence, &self.approver)
+            .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)?;
+        registry
+            .rollback(self.evidence, &self.approver)
+            .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)?;
+        if !registry
+            .active()
+            .is_some_and(|package| self.known_answer.passes(package))
+        {
+            let rollback_id = registry
+                .active()
+                .map(|package| package.package().metadata().model_id.clone());
+            if let Some(rollback_id) = rollback_id {
+                registry
+                    .suspend(&rollback_id, self.evidence, &self.approver)
+                    .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)?;
+            }
+        }
+        Err(ModelLifecycleCommandError::LifecycleGateFailed)
+    }
+
+    fn rollback(&self) -> Result<String, ModelLifecycleCommandError> {
+        self.registry
+            .borrow_mut()
+            .rollback(self.evidence, &self.approver)
+            .map(|()| "rollback complete; prior known-answer package active".into())
+            .map_err(|_| ModelLifecycleCommandError::LifecycleGateFailed)
+    }
+}
+
+/// Payload-free model lifecycle failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ModelLifecycleCommandError {
+    /// Syntax is invalid.
+    InvalidArguments,
+    /// Fresh exact authorization absent.
+    AuthorizationRequired,
+    /// Integrity, compatibility, KAT, promotion, policy, or registry gate failed.
+    LifecycleGateFailed,
+}
+
+/// Reauthorizes immediately before every lifecycle operation.
+pub fn execute_model_lifecycle_command<E, O>(
+    command: &ModelLifecycleCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    operations: &O,
+) -> Result<String, ModelLifecycleCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    O: ModelLifecycleOperations,
+{
+    let privileged = match command {
+        ModelLifecycleCommand::Status { .. } => PrivilegedCommand::ViewModelLifecycle,
+        ModelLifecycleCommand::Activate { .. }
+        | ModelLifecycleCommand::Health
+        | ModelLifecycleCommand::Rollback => PrivilegedCommand::MutateModelLifecycle,
+    };
+    gate.authorize_command(request, origin, privileged)
+        .map_err(|_| ModelLifecycleCommandError::AuthorizationRequired)?;
+    match command {
+        ModelLifecycleCommand::Status { model_id } => operations.status(model_id),
+        ModelLifecycleCommand::Activate { model_id } => operations.activate(model_id),
+        ModelLifecycleCommand::Health => operations.health(),
+        ModelLifecycleCommand::Rollback => operations.rollback(),
     }
 }

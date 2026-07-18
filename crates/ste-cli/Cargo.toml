@@ -20,7 +20,11 @@ ste-signal-observation.workspace = true
 ste-observability.workspace = true
 ste-experiment-validation.workspace = true
 ste-physiology-estimation.workspace = true
+ste-model-runtime.workspace = true
 serde_json.workspace = true
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+ed25519-dalek.workspace = true

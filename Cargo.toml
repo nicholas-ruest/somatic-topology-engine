@@ -13,6 +13,7 @@ members = [
   "crates/ste-consent-governance",
   "crates/ste-storage",
   "crates/ste-observability",
+  "crates/ste-model-runtime",
   "crates/ste-runtime",
   "crates/ste-cli",
 ]
@@ -48,6 +49,7 @@ ste-device-interaction = { path = "crates/ste-device-interaction" }
 ste-consent-governance = { path = "crates/ste-consent-governance" }
 ste-storage = { path = "crates/ste-storage" }
 ste-observability = { path = "crates/ste-observability" }
+ste-model-runtime = { path = "crates/ste-model-runtime" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

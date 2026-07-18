@@ -1,0 +1,20 @@
+[package]
+name = "ste-model-runtime"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "Signed edge model packages and atomic model lifecycle"
+
+[dependencies]
+ed25519-dalek.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+
+[dev-dependencies]
+rand_core.workspace = true
+
+[lints]
+workspace = true

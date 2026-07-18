@@ -1,0 +1,11 @@
+{
+  "calibration_id": "cal-v1",
+  "model_digest": "model-sha256",
+  "training_partition_digest": "train-sha256",
+  "calibration_partition_digest": "calibration-sha256",
+  "knots": [[0.0,0.0],[0.5,0.4],[1.0,1.0]],
+  "serving_threshold": 0.7,
+  "brier_score": 0.08,
+  "expected_calibration_error": 0.04,
+  "frozen": true
+}
