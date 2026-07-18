@@ -22,3 +22,5 @@ Simulator and physical adapters implement the same display, RGB, touch, sensing-
 ## Evidence status
 
 Run `scripts/validate-device-interaction.sh` for repository, audit, simulator snapshot, accessibility, debounce, staleness, and peripheral-fault evidence. Physical CrowPi HIL, power/thermal, long-duration soak, exact GPIO qualification, and accessibility user review remain pending.
+
+The executable suite passes fourteen device-interaction tests, three governed simulator CLI tests, and strict Clippy. It covers simulator/physical-off port parity, touch edges and debounce, accessible snapshots, independent peripheral fault injection, visible-indicator attempts, explicit stale/fault states, audit persistence, and rejection of unverified/conflicting HIL profiles.
