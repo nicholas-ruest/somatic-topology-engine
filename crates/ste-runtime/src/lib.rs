@@ -34,3 +34,4 @@ pub fn bounded_contexts() -> [&'static str; 8] {
         ste_consent_governance::CONTEXT_NAME,
     ]
 }
+pub mod ipc;

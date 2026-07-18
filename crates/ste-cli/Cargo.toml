@@ -24,7 +24,9 @@ ste-model-runtime.workspace = true
 ste-state-inference.workspace = true
 ste-personalization-memory.workspace = true
 ste-device-interaction.workspace = true
+ste-commissioning.workspace = true
 serde_json.workspace = true
+serde.workspace = true
 
 [lints]
 workspace = true

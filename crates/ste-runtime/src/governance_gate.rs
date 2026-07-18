@@ -68,6 +68,8 @@ pub enum PrivilegedCommand {
     ErasePersonalization,
     /// Drive the policy-approved interaction simulator.
     OperateInteractionSimulator,
+    /// Execute an authenticated idempotent operator/commissioning action.
+    OperateDevice,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.

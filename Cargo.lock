@@ -675,7 +675,9 @@ name = "ste-cli"
 version = "0.1.0"
 dependencies = [
  "ed25519-dalek",
+ "serde",
  "serde_json",
+ "ste-commissioning",
  "ste-consent-governance",
  "ste-device-interaction",
  "ste-experiment-validation",
@@ -688,6 +690,15 @@ dependencies = [
  "ste-signal-observation",
  "ste-state-inference",
  "ste-storage",
+]
+
+[[package]]
+name = "ste-commissioning"
+version = "0.1.0"
+dependencies = [
+ "ed25519-dalek",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

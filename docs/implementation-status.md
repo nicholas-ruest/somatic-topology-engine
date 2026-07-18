@@ -18,7 +18,7 @@ only after its required tests and validation pass.
 - [x] Phase 12 — Implement State Inference without unsupported claims
 - [x] Phase 13 — Implement Personalization Memory and constrained adaptation
 - [x] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
-- [ ] Phase 15 — Implement secure CLI, commissioning, and site qualification
+- [x] Phase 15 — Implement secure CLI, commissioning, and site qualification
 - [ ] Phase 16 — Add optional TypeScript sidecars without weakening the core
 - [ ] Phase 17 — Complete reliability, HIL, security, and optimization hardening
 - [ ] Phase 18 — Build release, commercial operations, and post-market readiness
@@ -106,3 +106,9 @@ only after its required tests and validation pass.
 - Simulator and versioned CrowPi profiles implement the same safe display, RGB, touch, DHT covariate, visible-sensing, and physical-off ports with deterministic snapshots and fault injection.
 - Approved accessible projections include explicit authorization, calibration, contamination, insufficiency, staleness, and fault states; RGB cannot encode inferred valence.
 - Touch debounce, anchor authorization, append-only audit, and peripheral isolation pass workspace gates; exact board-revision HIL, accessibility review, and Pi qualification remain pending hardware and human review.
+
+## Phase 15 evidence
+
+- Authenticated UID-bound Unix IPC enforces stable bounded JSON, role authorization, nonce replay protection, idempotent retries, secret redaction, and typed failure exits.
+- Guided commissioning requires all mandatory checks, signs exact enabled/blocked capability sets, preserves requalification lineage, and cannot qualify from recovery mode or incomplete evidence.
+- The operator CLI covers the supported lifecycle with confirmation/dry-run for reset and passes hostile-input gates; physical reference-device site acceptance remains pending and cannot be enabled by synthetic evidence.

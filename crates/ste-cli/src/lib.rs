@@ -1437,3 +1437,192 @@ where
     .map_err(|_| DeviceSimulatorError::AuthorizationRequired)?;
     device.render(&command.projection)
 }
+
+/// Supported authenticated operator action.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum OperatorAction {
+    /// Payload-free status.
+    Status,
+    /// Comprehensive local health checks.
+    Doctor,
+    /// Inspect active authorization.
+    Authorization,
+    /// Bounded capture qualification test.
+    CaptureTest,
+    /// Probe declared hardware profile.
+    HardwareProbe,
+    /// Execute/verify calibration.
+    Calibration,
+    /// Export immutable validation evidence.
+    ValidationExport,
+    /// Inspect model lifecycle.
+    Models,
+    /// Inspect signed capability policy.
+    CapabilityPolicy,
+    /// Build a redacted support preview/bundle.
+    SupportBundle,
+    /// Verify/apply signed updates.
+    Updates,
+    /// Governed data lifecycle operation.
+    DataLifecycle,
+    /// Recovery workflow.
+    Recovery,
+    /// Factory reset.
+    Reset,
+    /// Commission or requalify a site.
+    Commission,
+    /// Deterministic replay (specialized replay parser remains available).
+    Replay,
+}
+/// Stable operator request schema.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OperatorCommand {
+    /// Exact action.
+    pub action: OperatorAction,
+    /// Required retry-safe key.
+    pub idempotency_key: String,
+    /// Machine-readable response requested.
+    pub json: bool,
+    /// Non-mutating preview.
+    pub dry_run: bool,
+    /// Explicit destructive confirmation.
+    pub confirmed: bool,
+}
+impl OperatorCommand {
+    /// Parses `<action> --idempotency <key> [--json] [--dry-run] [--confirm]`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, OperatorCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let a = arguments
+            .into_iter()
+            .map(|v| v.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        if a.len() < 3 || a[1] != "--idempotency" || a[2].trim().is_empty() || a[2].len() > 128 {
+            return Err(OperatorCommandError::InvalidArguments);
+        }
+        let action = match a[0].as_str() {
+            "status" => OperatorAction::Status,
+            "doctor" => OperatorAction::Doctor,
+            "authorization" => OperatorAction::Authorization,
+            "capture-test" => OperatorAction::CaptureTest,
+            "hardware-probe" => OperatorAction::HardwareProbe,
+            "calibration" => OperatorAction::Calibration,
+            "replay" => OperatorAction::Replay,
+            "validation-export" => OperatorAction::ValidationExport,
+            "models" => OperatorAction::Models,
+            "capability-policy" => OperatorAction::CapabilityPolicy,
+            "support-bundle" => OperatorAction::SupportBundle,
+            "updates" => OperatorAction::Updates,
+            "data-lifecycle" => OperatorAction::DataLifecycle,
+            "recovery" => OperatorAction::Recovery,
+            "reset" => OperatorAction::Reset,
+            "commission" | "requalify" => OperatorAction::Commission,
+            _ => return Err(OperatorCommandError::InvalidArguments),
+        };
+        let flags = &a[3..];
+        if flags
+            .iter()
+            .any(|f| !matches!(f.as_str(), "--json" | "--dry-run" | "--confirm"))
+        {
+            return Err(OperatorCommandError::InvalidArguments);
+        }
+        Ok(Self {
+            action,
+            idempotency_key: a[2].clone(),
+            json: flags.iter().any(|f| f == "--json"),
+            dry_run: flags.iter().any(|f| f == "--dry-run"),
+            confirmed: flags.iter().any(|f| f == "--confirm"),
+        })
+    }
+}
+/// Stable machine response envelope.
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize)]
+pub struct OperatorResponse {
+    /// Schema major.
+    pub schema_major: u16,
+    /// Stable action name.
+    pub action: String,
+    /// Outcome status code.
+    pub status: String,
+    /// Retry-safe key.
+    pub idempotency_key: String,
+    /// Whether any state changed.
+    pub changed: bool,
+    /// Safe human summary with no secrets.
+    pub message: String,
+}
+/// Operator composition service with durable idempotency storage.
+pub trait OperatorOperations {
+    /// Executes one fully authorized command or returns its prior receipt.
+    fn execute(&self, command: &OperatorCommand) -> Result<OperatorResponse, OperatorCommandError>;
+}
+/// Narrow backend receiving commands only after authorization and idempotency checks.
+pub trait OperatorBackend {
+    /// Executes an unseen retry-safe request.
+    fn run(&self, command: &OperatorCommand) -> Result<OperatorResponse, OperatorCommandError>;
+}
+/// In-process receipt adapter; production IPC persists the same response envelope.
+pub struct IdempotentOperatorService<B> {
+    backend: B,
+    receipts: RefCell<std::collections::BTreeMap<String, (OperatorCommand, OperatorResponse)>>,
+}
+impl<B> IdempotentOperatorService<B> {
+    /// Creates an empty receipt store around a backend.
+    #[must_use]
+    pub fn new(backend: B) -> Self {
+        Self {
+            backend,
+            receipts: RefCell::new(std::collections::BTreeMap::new()),
+        }
+    }
+}
+impl<B: OperatorBackend> OperatorOperations for IdempotentOperatorService<B> {
+    fn execute(&self, command: &OperatorCommand) -> Result<OperatorResponse, OperatorCommandError> {
+        if let Some((prior, response)) = self.receipts.borrow().get(&command.idempotency_key) {
+            return if prior == command {
+                Ok(response.clone())
+            } else {
+                Err(OperatorCommandError::OperationFailed)
+            };
+        }
+        let response = self.backend.run(command)?;
+        self.receipts.borrow_mut().insert(
+            command.idempotency_key.clone(),
+            (command.clone(), response.clone()),
+        );
+        Ok(response)
+    }
+}
+/// Stable typed operator error.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum OperatorCommandError {
+    /// Invalid arguments.
+    InvalidArguments,
+    /// Fresh authenticated authorization absent.
+    AuthorizationRequired,
+    /// Explicit confirmation absent.
+    ConfirmationRequired,
+    /// Qualification/policy/adapter failed.
+    OperationFailed,
+}
+/// Applies destructive confirmation then a fresh exact authorization before dispatch.
+pub fn execute_operator_command<E, O>(
+    command: &OperatorCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    operations: &O,
+) -> Result<OperatorResponse, OperatorCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    O: OperatorOperations,
+{
+    if matches!(command.action, OperatorAction::Reset) && !command.dry_run && !command.confirmed {
+        return Err(OperatorCommandError::ConfirmationRequired);
+    }
+    gate.authorize_command(request, origin, PrivilegedCommand::OperateDevice)
+        .map_err(|_| OperatorCommandError::AuthorizationRequired)?;
+    operations.execute(command)
+}
