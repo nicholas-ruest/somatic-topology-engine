@@ -13,6 +13,7 @@ libfuzzer-sys = "0.4"
 serde_json = "1"
 ste-contracts = { path = "../crates/ste-contracts" }
 ste-radio-acquisition = { path = "../crates/ste-radio-acquisition" }
+ste-signal-observation = { path = "../crates/ste-signal-observation" }
 
 [[bin]]
 name = "contract_envelope"
@@ -24,6 +25,13 @@ bench = false
 [[bin]]
 name = "radio_replay"
 path = "fuzz_targets/radio_replay.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "dsp_graph"
+path = "fuzz_targets/dsp_graph.rs"
 test = false
 doc = false
 bench = false

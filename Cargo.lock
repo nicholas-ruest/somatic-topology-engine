@@ -677,6 +677,7 @@ dependencies = [
  "ste-consent-governance",
  "ste-radio-acquisition",
  "ste-runtime",
+ "ste-signal-observation",
  "ste-storage",
 ]
 
@@ -770,6 +771,10 @@ dependencies = [
 name = "ste-signal-observation"
 version = "0.1.0"
 dependencies = [
+ "proptest",
+ "serde",
+ "serde_json",
+ "sha2",
  "ste-kernel",
 ]
 

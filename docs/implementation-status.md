@@ -10,7 +10,7 @@ only after its required tests and validation pass.
 - [x] Phase 04 — Implement Consent and Governance as the capture gate
 - [x] Phase 05 — Implement encrypted journals, projections, and data lifecycle
 - [x] Phase 06 — Implement Radio Acquisition and replay before live hardware
-- [ ] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
+- [x] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
 - [ ] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
 - [ ] Phase 09 — Implement Experiment Validation and dataset governance
 - [ ] Phase 10 — Implement and validate respiration-first Physiology Estimation
@@ -58,3 +58,9 @@ only after its required tests and validation pass.
 - Radio domain and contract tests enforce plausible finite frames, exact provenance/calibration, sequence gaps, health statistics, policy gating, and bounded backpressure.
 - Bounded deterministic RVCSI/PCAP replay, hostile malformed inputs, anti-corruption conversion, and parser fuzz builds pass without panics.
 - Replay CLI and acquisition budgets pass on the development host; the pinned live adapter and compatibility procedure are ready, while physical Pi 4 qualification remains explicitly pending hardware.
+
+## Phase 07 evidence
+
+- Observation-only domain types enforce monotonic contamination, quality/abstention, exact provenance, bounded windows, and immutable content-addressed artifacts.
+- Versioned finite DSP passes golden, tolerance, phase-wrap, hostile-graph, and replay tests without downstream claim vocabulary.
+- Governed observation replay preserves source references and development numerical/performance budgets; physical ARM profiling remains pending hardware.

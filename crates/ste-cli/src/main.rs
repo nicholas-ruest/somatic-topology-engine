@@ -2,7 +2,7 @@
 
 use std::process::ExitCode;
 
-use ste_cli::{ReplayCommand, StorageCommand};
+use ste_cli::{ObservationReplayCommand, ReplayCommand, StorageCommand};
 
 fn main() -> ExitCode {
     let arguments = std::env::args().skip(1).collect::<Vec<_>>();
@@ -22,6 +22,14 @@ fn main() -> ExitCode {
         return ExitCode::from(77);
     }
     if arguments.first().map(String::as_str) == Some("replay") {
+        if arguments.get(1).map(String::as_str) == Some("observation") {
+            if ObservationReplayCommand::parse(&arguments[2..]).is_err() {
+                eprintln!("invalid observation replay command arguments");
+                return ExitCode::from(2);
+            }
+            eprintln!("active authorization required");
+            return ExitCode::from(77);
+        }
         if ReplayCommand::parse(&arguments[1..]).is_err() {
             eprintln!("invalid replay command arguments");
             return ExitCode::from(2);

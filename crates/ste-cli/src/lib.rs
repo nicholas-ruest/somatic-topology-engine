@@ -6,6 +6,11 @@ use std::path::{Path, PathBuf};
 use ste_consent_governance::domain::{AuthorizationRequest, PolicyDecision};
 use ste_radio_acquisition::replay::{ReplayLimits, ReplayReport, parse_pcap, parse_rvcsi};
 use ste_runtime::{GovernanceGate, PrivilegedCommand, RequestOrigin};
+use ste_signal_observation::dsp::{DspGraphSpec, PrimitiveCsiFrame};
+use ste_signal_observation::{
+    AlgorithmVersion, ContentAddressedEvidenceRepository, DspVersion, ObservationReplay,
+    ObservationWindowId, PartitionRole, ReplayEvidenceFrame, WindowBounds, WindowPolicy,
+};
 use ste_storage::lifecycle::LifecycleManager;
 use ste_storage::{DataClass, EventUpcaster, JournalStore};
 
@@ -150,6 +155,143 @@ where
     }
     .map_err(|_| ReplayCommandError::InvalidCapture)?;
     Ok(ReplaySummary::from(&report))
+}
+
+/// Observation replay request over a governed radio capture.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ObservationReplayCommand {
+    /// Underlying bounded radio replay request.
+    pub radio: ReplayCommand,
+    /// Non-production dataset partition role.
+    pub partition: PartitionRole,
+}
+
+impl ObservationReplayCommand {
+    /// Parses `<path> --format rvcsi|pcap --partition development|validation|test`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, ReplayCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|value| value.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        if args.len() != 5 || args[3] != "--partition" {
+            return Err(ReplayCommandError::InvalidArguments);
+        }
+        let partition = match args[4].as_str() {
+            "development" => PartitionRole::Development,
+            "validation" => PartitionRole::Validation,
+            "test" => PartitionRole::Test,
+            _ => return Err(ReplayCommandError::InvalidArguments),
+        };
+        let radio = ReplayCommand::parse(&args[..3])?;
+        Ok(Self { radio, partition })
+    }
+}
+
+/// Immutable observation replay result.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ObservationReplayResult {
+    /// Content digest of the stored artifact.
+    pub artifact_digest: String,
+    /// Count of radio frames contributing source references.
+    pub source_frames: usize,
+}
+
+/// Runs the pinned signal-only graph and idempotently stores its artifact.
+pub fn execute_observation_replay<E, R>(
+    command: &ObservationReplayCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    input: &R,
+    repository: &ContentAddressedEvidenceRepository,
+) -> Result<ObservationReplayResult, ReplayCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    R: ReplayInput,
+{
+    gate.authorize_command(request, origin, PrivilegedCommand::ReplayCapture)
+        .map_err(|_| ReplayCommandError::AuthorizationRequired)?;
+    let limits = ReplayLimits::default();
+    let bytes = input.read_bounded(&command.radio.input, limits.max_input_bytes)?;
+    let report = match command.radio.format {
+        ReplayFormat::Rvcsi => parse_rvcsi(&bytes, limits),
+        ReplayFormat::Pcap => parse_pcap(&bytes, limits),
+    }
+    .map_err(|_| ReplayCommandError::InvalidCapture)?;
+    if report.rejected_malformed > 0
+        || report.rejected_implausible > 0
+        || report.rejected_non_finite > 0
+    {
+        return Err(ReplayCommandError::InvalidCapture);
+    }
+    if report.frames.len() < 2 {
+        return Err(ReplayCommandError::InvalidCapture);
+    }
+    let start = report
+        .frames
+        .first()
+        .expect("checked non-empty")
+        .event_time_ns;
+    let end = report
+        .frames
+        .last()
+        .expect("checked non-empty")
+        .event_time_ns
+        .checked_add(1)
+        .ok_or(ReplayCommandError::InvalidCapture)?;
+    let delta = report.frames[1].event_time_ns.saturating_sub(start);
+    if delta == 0 {
+        return Err(ReplayCommandError::InvalidCapture);
+    }
+    let sample_rate_hz = 1_000_000_000.0 / delta as f64;
+    let frames = report
+        .frames
+        .iter()
+        .map(|frame| {
+            let source_ref = format!("radio-frame:{}", frame.sequence);
+            ReplayEvidenceFrame {
+                source_ref: source_ref.clone(),
+                frame: PrimitiveCsiFrame {
+                    source_ref,
+                    event_time_ns: frame.event_time_ns,
+                    subcarriers: frame.subcarriers.clone(),
+                },
+            }
+        })
+        .collect::<Vec<_>>();
+    let artifact = ObservationReplay::replay(
+        ObservationWindowId::new("cli-observation-replay")
+            .map_err(|_| ReplayCommandError::InvalidCapture)?,
+        WindowBounds::new(start, end).map_err(|_| ReplayCommandError::InvalidCapture)?,
+        WindowPolicy::new("cli-fixed-v1", 2, frames.len(), 0.2, 0.2)
+            .map_err(|_| ReplayCommandError::InvalidCapture)?,
+        AlgorithmVersion::new("features-v1").map_err(|_| ReplayCommandError::InvalidCapture)?,
+        DspVersion::new("dsp-v1").map_err(|_| ReplayCommandError::InvalidCapture)?,
+        "radio-calibration-v1".into(),
+        command.partition,
+        DspGraphSpec {
+            version: 1,
+            sample_rate_hz,
+            window_len: frames.len(),
+            saturation_magnitude: 1.0e9,
+            presence_threshold: 0.0,
+            periodicity_min_lag: 1,
+            periodicity_max_lag: (frames.len() - 1).min(64),
+        },
+        &frames,
+    )
+    .map_err(|_| ReplayCommandError::InvalidCapture)?;
+    repository
+        .put(&artifact)
+        .map_err(|_| ReplayCommandError::InvalidCapture)?;
+    Ok(ObservationReplayResult {
+        artifact_digest: artifact.digest().into(),
+        source_frames: frames.len(),
+    })
 }
 
 /// Storage lifecycle command parsed from the supported operator surface.

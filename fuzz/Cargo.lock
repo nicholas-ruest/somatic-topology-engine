@@ -339,6 +339,7 @@ dependencies = [
  "serde_json",
  "ste-contracts",
  "ste-radio-acquisition",
+ "ste-signal-observation",
 ]
 
 [[package]]
@@ -355,6 +356,16 @@ dependencies = [
  "ste-contracts",
  "ste-kernel",
  "uuid",
+]
+
+[[package]]
+name = "ste-signal-observation"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sha2",
+ "ste-kernel",
 ]
 
 [[package]]

@@ -1,0 +1,26 @@
+{
+  "graph": {
+    "version": 1,
+    "sample_rate_hz": 10.0,
+    "window_len": 8,
+    "saturation_magnitude": 10.0,
+    "presence_threshold": 0.0,
+    "periodicity_min_lag": 1,
+    "periodicity_max_lag": 4
+  },
+  "frames": [
+    {"event_time_ns":100000000,"subcarriers":[[1.0,0.0],[0.8,0.1]]},
+    {"event_time_ns":200000000,"subcarriers":[[1.1,0.1],[0.9,0.0]]},
+    {"event_time_ns":300000000,"subcarriers":[[1.2,0.0],[1.0,-0.1]]},
+    {"event_time_ns":400000000,"subcarriers":[[1.1,-0.1],[0.9,0.0]]},
+    {"event_time_ns":500000000,"subcarriers":[[1.0,0.0],[0.8,0.1]]},
+    {"event_time_ns":600000000,"subcarriers":[[0.9,0.1],[0.7,0.0]]},
+    {"event_time_ns":700000000,"subcarriers":[[0.8,0.0],[0.6,-0.1]]},
+    {"event_time_ns":800000000,"subcarriers":[[0.9,-0.1],[0.7,0.0]]}
+  ],
+  "expected": {
+    "observed_frames": 8,
+    "missing_frames": 0,
+    "phase_wraps": 0
+  }
+}
