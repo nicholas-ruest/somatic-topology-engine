@@ -3,10 +3,14 @@ ignore = []
 
 [licenses]
 confidence-threshold = 0.93
+unused-license-exception = "allow"
 allow = [
   "Apache-2.0",
   "MIT",
   "Unicode-3.0",
+]
+exceptions = [
+  { allow = ["NCSA"], crate = "libfuzzer-sys" },
 ]
 
 [bans]

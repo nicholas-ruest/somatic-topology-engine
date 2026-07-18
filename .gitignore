@@ -1,5 +1,5 @@
 # Build and editor output
-/target/
+**/target/
 **/*.rs.bk
 .DS_Store
 .idea/
@@ -23,6 +23,10 @@
 /CLAUDE.md
 /skills-lock.json
 /ruvector.db
+
+# Fuzzing generates crash artifacts locally; reviewed minimized regression
+# fixtures belong in fuzz/corpus instead.
+/fuzz/artifacts/
 
 # Keep product planning, documentation, source, and tests tracked.
 !/.plans/

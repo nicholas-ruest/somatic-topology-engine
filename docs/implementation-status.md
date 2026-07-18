@@ -5,7 +5,7 @@ This checklist records independently gated implementation phases from
 only after its required tests and validation pass.
 
 - [x] Phase 01 — Bootstrap the Rust architecture and dependency boundaries
-- [ ] Phase 02 — Establish threat, safety, supply-chain, and quality baselines
+- [x] Phase 02 — Establish threat, safety, supply-chain, and quality baselines
 - [ ] Phase 03 — Build configuration, runtime supervision, and deterministic execution
 - [ ] Phase 04 — Implement Consent and Governance as the capture gate
 - [ ] Phase 05 — Implement encrypted journals, projections, and data lifecycle
@@ -28,3 +28,9 @@ only after its required tests and validation pass.
 - Workspace compilation, formatting, Clippy, tests, and rustdoc pass with warnings denied.
 - Domain boundary, unsafe-code, dependency advisory, license, and source-policy gates pass.
 - Versioned contracts and JSON Schema generation are covered by automated tests.
+
+## Phase 02 evidence
+
+- Threat, privacy, abuse, trust-boundary, data-classification, and hazard baselines are versioned with owners and verification references.
+- Intended-use, prohibited-use, claim-evidence, risk-acceptance, vulnerability-disclosure, and quality-record controls are defined.
+- CI enforces dependency, license, advisory, secret, unsafe-code, SBOM, reproducibility, fuzz-build, and provenance gates.

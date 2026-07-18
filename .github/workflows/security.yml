@@ -1,0 +1,91 @@
+name: Security and supply chain
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@1.85.1
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny
+      - run: cargo audit --deny warnings
+      - run: cargo deny check advisories bans licenses sources
+      - run: cargo audit --file fuzz/Cargo.lock --deny warnings
+      - run: cargo deny --manifest-path fuzz/Cargo.toml check advisories bans licenses sources
+      - run: bash scripts/check-unsafe.sh
+      - run: bash scripts/check-assurance-controls.sh
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run repository secret canaries
+        run: bash scripts/check-secrets.sh
+
+  fuzz-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-fuzz
+      - run: cargo fuzz build --fuzz-dir fuzz
+
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.1
+      - run: bash scripts/generate-sbom.sh target/assurance/ste.cdx.json
+      - run: bash scripts/generate-sbom.sh target/assurance/ste-second.cdx.json
+      - run: cmp target/assurance/ste.cdx.json target/assurance/ste-second.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ste-cyclonedx-sbom
+          path: target/assurance/ste.cdx.json
+          if-no-files-found: error
+
+  provenance:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.1
+      - run: cargo build --release --locked -p ste-cli
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: target/release/ste
+
+  reproducible-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@1.85.1
+      - run: bash scripts/check-reproducible-build.sh

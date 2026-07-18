@@ -1,0 +1,24 @@
+[package]
+name = "ste-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+license = "MIT"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+serde_json = "1"
+ste-contracts = { path = "../crates/ste-contracts" }
+
+[[bin]]
+name = "contract_envelope"
+path = "fuzz_targets/contract_envelope.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]

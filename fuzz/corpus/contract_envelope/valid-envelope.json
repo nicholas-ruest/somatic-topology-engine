@@ -1,0 +1,1 @@
+{"schema_version":{"major":1,"minor":0},"event_id":"00000000-0000-0000-0000-000000000001","aggregate_id":"00000000-0000-0000-0000-000000000002","source_time_ns":1,"emitted_at_unix_ns":1,"producer_version":"0.1.0","correlation_id":null,"causation_id":null,"provenance_ref":"fixture","idempotency_key":"fixture-1","payload":{}}
