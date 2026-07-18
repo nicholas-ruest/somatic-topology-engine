@@ -676,6 +676,7 @@ version = "0.1.0"
 dependencies = [
  "serde_json",
  "ste-consent-governance",
+ "ste-experiment-validation",
  "ste-observability",
  "ste-radio-acquisition",
  "ste-runtime",
@@ -715,6 +716,9 @@ dependencies = [
 name = "ste-experiment-validation"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
+ "sha2",
  "ste-kernel",
 ]
 

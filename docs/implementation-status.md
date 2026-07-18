@@ -12,7 +12,7 @@ only after its required tests and validation pass.
 - [x] Phase 06 — Implement Radio Acquisition and replay before live hardware
 - [x] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
 - [x] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
-- [ ] Phase 09 — Implement Experiment Validation and dataset governance
+- [x] Phase 09 — Implement Experiment Validation and dataset governance
 - [ ] Phase 10 — Implement and validate respiration-first Physiology Estimation
 - [ ] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
 - [ ] Phase 12 — Implement State Inference without unsupported claims
@@ -70,3 +70,9 @@ only after its required tests and validation pass.
 - Local bounded metrics, traces, separated records, health snapshots, redaction, drop counters, and preview-bound checksummed support bundles pass canary tests.
 - Eleven typed, owned SLO budgets and regression comparisons cover continuity, coverage, latency, freshness, recovery, compute, storage, temperature, and power.
 - Cross-layer synthetic fault and benchmark suites pass on the development host; Pi thermal, power, and soak evidence remains an explicit release blocker.
+
+## Phase 09 evidence
+
+- Frozen study protocols, complete dataset cards, four-way split manifests, and property tests reject participant/session/room/day leakage and block unauthorized human collection.
+- Agreement, calibration, selective-risk, interval, failure-rate, baseline, and reference synchronization artifacts are deterministic and finite checked.
+- Atomic repositories, append-only promotion decisions, de-identified export, negative-result preservation, governed CLI tooling, and byte-reproducible reports pass validation.

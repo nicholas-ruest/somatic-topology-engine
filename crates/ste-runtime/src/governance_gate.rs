@@ -48,6 +48,12 @@ pub enum PrivilegedCommand {
     ViewDiagnostics,
     /// Preview the exact redacted support-bundle manifest.
     PreviewSupportBundle,
+    /// Validate or export governed validation-study evidence.
+    AccessValidationEvidence,
+    /// Promote a capability from immutable validation evidence.
+    PromoteValidatedCapability,
+    /// Record an explicit rejection from immutable validation evidence.
+    RejectValidatedCapability,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.

@@ -2,7 +2,9 @@
 
 use std::process::ExitCode;
 
-use ste_cli::{DiagnosticsCommand, ObservationReplayCommand, ReplayCommand, StorageCommand};
+use ste_cli::{
+    DiagnosticsCommand, ObservationReplayCommand, ReplayCommand, StorageCommand, ValidationCommand,
+};
 
 fn main() -> ExitCode {
     let arguments = std::env::args().skip(1).collect::<Vec<_>>();
@@ -42,6 +44,16 @@ fn main() -> ExitCode {
             eprintln!("invalid diagnostics command arguments");
             return ExitCode::from(2);
         }
+        eprintln!("active authorization required");
+        return ExitCode::from(77);
+    }
+    if arguments.first().map(String::as_str) == Some("validation") {
+        if ValidationCommand::parse(&arguments[1..]).is_err() {
+            eprintln!("invalid validation command arguments");
+            return ExitCode::from(2);
+        }
+        // Validation evidence and decisions are available only through the
+        // authenticated local IPC composition boundary.
         eprintln!("active authorization required");
         return ExitCode::from(77);
     }

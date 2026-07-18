@@ -1,0 +1,10 @@
+{
+  "source_id": "simulated-belt-v1",
+  "samples": [
+    {"timestamp_ns":100,"value":1.0,"quality":0.99},
+    {"timestamp_ns":200,"value":2.0,"quality":0.98},
+    {"timestamp_ns":300,"value":3.0,"quality":0.97}
+  ],
+  "targets_ns": [100,150,250,400],
+  "maximum_uncertainty_ns": 60
+}

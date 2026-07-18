@@ -716,3 +716,144 @@ where
         }
     }
 }
+
+/// Governed validation-study operation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ValidationCommand {
+    /// Validate a serialized dataset manifest and its locked split.
+    ValidateDataset {
+        /// Governed manifest path.
+        input: PathBuf,
+    },
+    /// Export a deidentified, immutable validation report.
+    Export {
+        /// Opaque frozen-study identifier.
+        study_id: String,
+    },
+    /// Promote a capability using evidence already verified by the service.
+    Promote {
+        /// Opaque frozen-study identifier.
+        study_id: String,
+        /// Versioned capability identifier.
+        capability: String,
+    },
+    /// Preserve an explicit negative decision and reason.
+    Reject {
+        /// Opaque frozen-study identifier.
+        study_id: String,
+        /// Versioned capability identifier.
+        capability: String,
+        /// Mandatory-gate rejection reason.
+        reason: String,
+    },
+}
+
+impl ValidationCommand {
+    /// Parses the narrow validation command surface.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, ValidationCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|v| v.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        let required = |value: &String| !value.trim().is_empty() && value.len() <= 256;
+        match args.as_slice() {
+            [verb, input] if verb == "validate-dataset" && required(input) => {
+                Ok(Self::ValidateDataset {
+                    input: PathBuf::from(input),
+                })
+            }
+            [verb, study] if verb == "export" && required(study) => Ok(Self::Export {
+                study_id: study.clone(),
+            }),
+            [verb, study, capability]
+                if verb == "promote" && required(study) && required(capability) =>
+            {
+                Ok(Self::Promote {
+                    study_id: study.clone(),
+                    capability: capability.clone(),
+                })
+            }
+            [verb, study, capability, reason]
+                if verb == "reject"
+                    && required(study)
+                    && required(capability)
+                    && required(reason) =>
+            {
+                Ok(Self::Reject {
+                    study_id: study.clone(),
+                    capability: capability.clone(),
+                    reason: reason.clone(),
+                })
+            }
+            _ => Err(ValidationCommandError::InvalidArguments),
+        }
+    }
+}
+
+/// Application service behind the authenticated local operator boundary.
+pub trait ValidationOperations {
+    /// Validates manifest completeness and cross-partition leakage.
+    fn validate_dataset(&self, input: &Path) -> Result<String, ValidationCommandError>;
+    /// Produces a deidentified report with an immutable evidence digest.
+    fn export(&self, study_id: &str) -> Result<String, ValidationCommandError>;
+    /// Promotes only after the service verifies immutable passing evidence.
+    fn promote(&self, study_id: &str, capability: &str) -> Result<String, ValidationCommandError>;
+    /// Appends an immutable rejection, including negative evidence.
+    fn reject(
+        &self,
+        study_id: &str,
+        capability: &str,
+        reason: &str,
+    ) -> Result<String, ValidationCommandError>;
+}
+
+/// Stable fail-closed validation command error.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ValidationCommandError {
+    /// Syntax was incomplete or ambiguous.
+    InvalidArguments,
+    /// A fresh exact authorization was not granted.
+    AuthorizationRequired,
+    /// Dataset, evidence, or decision failed validation.
+    ValidationFailed,
+}
+
+/// Reauthorizes immediately before every validation operation.
+pub fn execute_validation_command<E, V>(
+    command: &ValidationCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    operations: &V,
+) -> Result<String, ValidationCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    V: ValidationOperations,
+{
+    let privileged = match command {
+        ValidationCommand::ValidateDataset { .. } | ValidationCommand::Export { .. } => {
+            PrivilegedCommand::AccessValidationEvidence
+        }
+        ValidationCommand::Promote { .. } => PrivilegedCommand::PromoteValidatedCapability,
+        ValidationCommand::Reject { .. } => PrivilegedCommand::RejectValidatedCapability,
+    };
+    gate.authorize_command(request, origin, privileged)
+        .map_err(|_| ValidationCommandError::AuthorizationRequired)?;
+    match command {
+        ValidationCommand::ValidateDataset { input } => operations.validate_dataset(input),
+        ValidationCommand::Export { study_id } => operations.export(study_id),
+        ValidationCommand::Promote {
+            study_id,
+            capability,
+        } => operations.promote(study_id, capability),
+        ValidationCommand::Reject {
+            study_id,
+            capability,
+            reason,
+        } => operations.reject(study_id, capability, reason),
+    }
+}
