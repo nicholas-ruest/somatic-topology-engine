@@ -17,6 +17,7 @@ members = [
   "crates/ste-commissioning",
   "crates/ste-sidecar-policy",
   "crates/ste-release-hardening",
+  "crates/ste-commercial-readiness",
   "crates/ste-runtime",
   "crates/ste-cli",
 ]
@@ -56,6 +57,7 @@ ste-model-runtime = { path = "crates/ste-model-runtime" }
 ste-commissioning = { path = "crates/ste-commissioning" }
 ste-sidecar-policy = { path = "crates/ste-sidecar-policy" }
 ste-release-hardening = { path = "crates/ste-release-hardening" }
+ste-commercial-readiness = { path = "crates/ste-commercial-readiness" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

@@ -21,7 +21,7 @@ only after its required tests and validation pass.
 - [x] Phase 15 — Implement secure CLI, commissioning, and site qualification
 - [x] Phase 16 — Add optional TypeScript sidecars without weakening the core
 - [x] Phase 17 — Complete reliability, HIL, security, and optimization hardening
-- [ ] Phase 18 — Build release, commercial operations, and post-market readiness
+- [x] Phase 18 — Build release, commercial operations, and post-market readiness controls
 
 ## Phase 01 evidence
 
@@ -124,3 +124,9 @@ only after its required tests and validation pass.
 - Signed A/B updates, downgrade controls, health rollback, authenticated backup/restore, journal migration/corruption detection, key rotation/compromise, and zeroizing reset pass adversarial tests.
 - Deterministic hostile parser/model/IPC corpora, authorization/redaction probes, watchdog checks, and simulated voltage/thermal/bus/storage/AP/power faults produce signed development-host evidence.
 - Release regression gates pass on the current host with no speculative optimization; external penetration, continuous fuzzing, exact-Pi HIL, thermal/power, and multi-day soak evidence remain explicit production blockers.
+
+## Phase 18 evidence
+
+- Canonical signed release manifests require exact source, lockfile, toolchain, software/firmware, SBOM, model/data, compatibility, migration, update, rollback, and support evidence; channel promotion forbids rebuilding artifacts.
+- The signed readiness engine binds the exact release scope, requires twelve current evidence criteria, records residual risks and corrective actions, and cannot bypass legal, claim, pilot, HIL, or safety gates.
+- Commercial operations, release, pilot, claims, incident/recall, support, warranty, complaint, EOL, privacy, post-market, CAPA, and suspension procedures are documented; the current verified decision is `NOT_APPROVED`, so sale and production deployment remain blocked.

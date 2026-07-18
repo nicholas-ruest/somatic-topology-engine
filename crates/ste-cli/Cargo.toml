@@ -25,6 +25,7 @@ ste-state-inference.workspace = true
 ste-personalization-memory.workspace = true
 ste-device-interaction.workspace = true
 ste-commissioning.workspace = true
+ste-commercial-readiness.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 

@@ -15,6 +15,8 @@ use std::{
 };
 use zeroize::Zeroize;
 
+pub mod release_evidence;
+
 /// A/B deployment slot.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Slot {
