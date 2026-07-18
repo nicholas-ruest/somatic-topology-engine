@@ -13,7 +13,7 @@ only after its required tests and validation pass.
 - [x] Phase 07 — Implement Signal Observation, DSP, quality, and evidence artifacts
 - [x] Phase 08 — Add local observability, SLOs, benchmarks, and fault harnesses
 - [x] Phase 09 — Implement Experiment Validation and dataset governance
-- [ ] Phase 10 — Implement and validate respiration-first Physiology Estimation
+- [x] Phase 10 — Implement and validate respiration-first Physiology Estimation
 - [ ] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
 - [ ] Phase 12 — Implement State Inference without unsupported claims
 - [ ] Phase 13 — Implement Personalization Memory and constrained adaptation
@@ -76,3 +76,9 @@ only after its required tests and validation pass.
 - Frozen study protocols, complete dataset cards, four-way split manifests, and property tests reject participant/session/room/day leakage and block unauthorized human collection.
 - Agreement, calibration, selective-risk, interval, failure-rate, baseline, and reference synchronization artifacts are deterministic and finite checked.
 - Atomic repositories, append-only promotion decisions, de-identified export, negative-result preservation, governed CLI tooling, and byte-reproducible reports pass validation.
+
+## Phase 10 evidence
+
+- The physiology domain exposes respiration only and enforces validation promotion plus motion, quality, OOD, calibration, duration, confidence, and operating-envelope abstention.
+- A deterministic content-digested baseline passes exact known-answer/parity and held-out evaluation mechanics without granting promotion.
+- Repository, registry, governed CLI, model card, negative report, and host benchmark pass; real belt-reference and Pi gates remain pending, so respiration stays disabled and non-medical.

@@ -8,6 +8,10 @@ publish.workspace = true
 description = "Physiology estimation bounded context"
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+ste-experiment-validation.workspace = true
 ste-kernel.workspace = true
 
 [lints]

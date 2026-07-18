@@ -4,7 +4,13 @@
 
 pub mod application;
 pub mod domain;
+pub mod estimator;
+pub mod evaluation;
 mod infrastructure;
+
+pub use infrastructure::{
+    AtomicPhysiologyRepository, ExperimentValidationRegistry, PhysiologyRepositoryError,
+};
 
 /// Stable name used in diagnostics and architecture tests.
 pub const CONTEXT_NAME: &str = "physiology-estimation";

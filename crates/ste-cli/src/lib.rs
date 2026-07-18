@@ -857,3 +857,82 @@ where
         } => operations.reject(study_id, capability, reason),
     }
 }
+
+/// Governed, non-medical respiration validation query.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RespirationCommand {
+    /// Reports exact promotion state; never returns an estimate.
+    Status {
+        /// Exact model package identifier.
+        model_id: String,
+    },
+    /// Runs the immutable scientific/resource gate report.
+    Validate {
+        /// Exact frozen validation run identifier.
+        run_id: String,
+    },
+}
+
+impl RespirationCommand {
+    /// Parses `status <model-id>` or `validate <run-id>`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, RespirationCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|value| value.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        match args.as_slice() {
+            [verb, id] if verb == "status" && !id.trim().is_empty() && id.len() <= 256 => {
+                Ok(Self::Status {
+                    model_id: id.clone(),
+                })
+            }
+            [verb, id] if verb == "validate" && !id.trim().is_empty() && id.len() <= 256 => {
+                Ok(Self::Validate { run_id: id.clone() })
+            }
+            _ => Err(RespirationCommandError::InvalidArguments),
+        }
+    }
+}
+
+/// Read-only validation service; it cannot override the promotion registry.
+pub trait RespirationOperations {
+    /// Returns explicit non-medical enabled/disabled state.
+    fn status(&self, model_id: &str) -> Result<String, RespirationCommandError>;
+    /// Returns the exact immutable gate result and available agreement evidence.
+    fn validate(&self, run_id: &str) -> Result<String, RespirationCommandError>;
+}
+
+/// Stable respiration CLI failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RespirationCommandError {
+    /// Command syntax invalid.
+    InvalidArguments,
+    /// Fresh exact authorization absent.
+    AuthorizationRequired,
+    /// Immutable report unavailable or invalid.
+    ValidationUnavailable,
+}
+
+/// Authorizes immediately before dispatching a non-medical respiration query.
+pub fn execute_respiration_command<E, R>(
+    command: &RespirationCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    operations: &R,
+) -> Result<String, RespirationCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    R: RespirationOperations,
+{
+    gate.authorize_command(request, origin, PrivilegedCommand::AccessValidationEvidence)
+        .map_err(|_| RespirationCommandError::AuthorizationRequired)?;
+    match command {
+        RespirationCommand::Status { model_id } => operations.status(model_id),
+        RespirationCommand::Validate { run_id } => operations.validate(run_id),
+    }
+}

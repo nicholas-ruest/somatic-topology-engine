@@ -458,12 +458,21 @@ impl PromotionDecision {
             Self::Promoted { study_id, .. } | Self::Rejected { study_id, .. } => study_id,
         }
     }
-    fn capability(&self) -> &str {
+    /// Returns the exact versioned capability governed by this decision.
+    #[must_use]
+    pub fn capability(&self) -> &str {
         match self {
             Self::Promoted { capability, .. } | Self::Rejected { capability, .. } => capability,
         }
     }
-    fn decided_at(&self) -> u64 {
+    /// Returns whether this decision promotes rather than rejects the capability.
+    #[must_use]
+    pub const fn is_promoted(&self) -> bool {
+        matches!(self, Self::Promoted { .. })
+    }
+    /// Returns the deterministic decision timestamp.
+    #[must_use]
+    pub fn decided_at(&self) -> u64 {
         match self {
             Self::Promoted { decided_at, .. } | Self::Rejected { decided_at, .. } => *decided_at,
         }

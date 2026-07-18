@@ -19,6 +19,7 @@ ste-radio-acquisition.workspace = true
 ste-signal-observation.workspace = true
 ste-observability.workspace = true
 ste-experiment-validation.workspace = true
+ste-physiology-estimation.workspace = true
 serde_json.workspace = true
 
 [lints]

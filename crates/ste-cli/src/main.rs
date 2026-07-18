@@ -3,7 +3,8 @@
 use std::process::ExitCode;
 
 use ste_cli::{
-    DiagnosticsCommand, ObservationReplayCommand, ReplayCommand, StorageCommand, ValidationCommand,
+    DiagnosticsCommand, ObservationReplayCommand, ReplayCommand, RespirationCommand,
+    StorageCommand, ValidationCommand,
 };
 
 fn main() -> ExitCode {
@@ -54,6 +55,14 @@ fn main() -> ExitCode {
         }
         // Validation evidence and decisions are available only through the
         // authenticated local IPC composition boundary.
+        eprintln!("active authorization required");
+        return ExitCode::from(77);
+    }
+    if arguments.first().map(String::as_str) == Some("respiration") {
+        if RespirationCommand::parse(&arguments[1..]).is_err() {
+            eprintln!("invalid respiration command arguments");
+            return ExitCode::from(2);
+        }
         eprintln!("active authorization required");
         return ExitCode::from(77);
     }

@@ -1,0 +1,27 @@
+{
+  "package": {
+    "package_id": "respiration-baseline",
+    "package_version": "1.0.0",
+    "algorithm": "deterministic-periodicity-v1",
+    "dsp_graph_version": 1,
+    "calibration_id": "identity-v1",
+    "minimum_bpm": 6.0,
+    "maximum_bpm": 40.0,
+    "minimum_periodicity": 0.6,
+    "maximum_missingness": 0.2,
+    "maximum_interference": 0.2,
+    "minimum_confidence": 0.6,
+    "confidence_calibration": [[0.0,0.0],[0.5,0.5],[1.0,1.0]]
+  },
+  "evidence": {
+    "artifact_ref": "observation-artifact-001",
+    "dsp_graph_version": 1,
+    "periodicity": 0.9,
+    "dominant_frequency_hz": 0.25,
+    "missingness": 0.1,
+    "interference": 0.1,
+    "contaminated": false
+  },
+  "expected_bpm": 15.0,
+  "expected_confidence": 0.729
+}

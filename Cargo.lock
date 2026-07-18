@@ -678,6 +678,7 @@ dependencies = [
  "ste-consent-governance",
  "ste-experiment-validation",
  "ste-observability",
+ "ste-physiology-estimation",
  "ste-radio-acquisition",
  "ste-runtime",
  "ste-signal-observation",
@@ -746,6 +747,10 @@ dependencies = [
 name = "ste-physiology-estimation"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
+ "sha2",
+ "ste-experiment-validation",
  "ste-kernel",
 ]
 
