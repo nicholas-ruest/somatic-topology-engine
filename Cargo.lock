@@ -799,6 +799,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ste-release-hardening"
+version = "0.1.0"
+dependencies = [
+ "chacha20poly1305",
+ "ed25519-dalek",
+ "serde",
+ "serde_json",
+ "sha2",
+ "zeroize",
+]
+
+[[package]]
 name = "ste-runtime"
 version = "0.1.0"
 dependencies = [
@@ -810,6 +822,7 @@ dependencies = [
  "ste-contracts",
  "ste-device-interaction",
  "ste-experiment-validation",
+ "ste-model-runtime",
  "ste-personalization-memory",
  "ste-physiology-estimation",
  "ste-radio-acquisition",

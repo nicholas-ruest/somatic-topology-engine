@@ -8,6 +8,7 @@ pub mod sidecar;
 pub mod slo;
 mod supervisor;
 mod synthetic;
+pub mod verification;
 
 pub use governance_gate::{
     GateError, GovernanceGate, PrivilegedCommand, PrivilegedGrant, RequestOrigin,

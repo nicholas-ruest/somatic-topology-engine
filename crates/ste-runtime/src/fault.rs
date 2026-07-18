@@ -30,6 +30,8 @@ pub enum FaultScenario {
     LowVoltage,
     /// Platform exceeds thermal operating threshold.
     ThermalPressure,
+    /// Physical peripheral bus stops responding.
+    PeripheralBusFailure,
     /// Abrupt power interruption/restart is simulated.
     PowerInterruption,
 }
@@ -131,6 +133,12 @@ impl FaultHarness {
                     self.supervisor.health().safe_state,
                 )
             }
+            FaultScenario::PeripheralBusFailure => (
+                ExpectedResponse::ContinueDegraded,
+                HealthState::Degraded,
+                true,
+                None,
+            ),
             FaultScenario::CriticalTaskDeath => {
                 self.supervisor
                     .record_failure("capture", TaskFailure::Crashed("injected".into()))

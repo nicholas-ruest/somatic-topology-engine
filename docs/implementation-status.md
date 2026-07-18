@@ -20,7 +20,7 @@ only after its required tests and validation pass.
 - [x] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
 - [x] Phase 15 — Implement secure CLI, commissioning, and site qualification
 - [x] Phase 16 — Add optional TypeScript sidecars without weakening the core
-- [ ] Phase 17 — Complete reliability, HIL, security, and optimization hardening
+- [x] Phase 17 — Complete reliability, HIL, security, and optimization hardening
 - [ ] Phase 18 — Build release, commercial operations, and post-market readiness
 
 ## Phase 01 evidence
@@ -118,3 +118,9 @@ only after its required tests and validation pass.
 - No measured Rust capability gap exists, so no production TypeScript, Node, AgentDB, DSPy, or Ruflo dependency was added.
 - Signed sidecar manifests and the Rust supervisor bind executable/contract digests, advisory-only allowlists, purpose/claim/capability ceilings, offline sandboxing, resource limits, authentication, and deadlines.
 - Absent, hung, corrupt, killed, or disabled sidecars leave authorization, capture, inference validity, persistence authority, hardware, and the Rust core unaffected; removal and fallback are documented.
+
+## Phase 17 evidence
+
+- Signed A/B updates, downgrade controls, health rollback, authenticated backup/restore, journal migration/corruption detection, key rotation/compromise, and zeroizing reset pass adversarial tests.
+- Deterministic hostile parser/model/IPC corpora, authorization/redaction probes, watchdog checks, and simulated voltage/thermal/bus/storage/AP/power faults produce signed development-host evidence.
+- Release regression gates pass on the current host with no speculative optimization; external penetration, continuous fuzzing, exact-Pi HIL, thermal/power, and multi-day soak evidence remain explicit production blockers.

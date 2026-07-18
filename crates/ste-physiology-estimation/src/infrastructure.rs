@@ -2,8 +2,6 @@
 
 use std::{collections::BTreeMap, error::Error, fmt};
 
-use ste_experiment_validation::domain::{PromotionDecision, PromotionRegistry};
-
 use crate::application::{PhysiologyAssessmentRepository, ValidationRegistry};
 use crate::domain::AssessmentOutcome;
 
@@ -58,7 +56,7 @@ impl PhysiologyAssessmentRepository for AtomicPhysiologyRepository {
 
 /// Read-only adapter over the validation bounded context's append-only registry.
 pub struct ExperimentValidationRegistry<'a> {
-    registry: &'a PromotionRegistry,
+    promoted: bool,
     capability: &'a str,
     model_id: &'a str,
 }
@@ -66,13 +64,9 @@ pub struct ExperimentValidationRegistry<'a> {
 impl<'a> ExperimentValidationRegistry<'a> {
     /// Binds one exact model package to one exact promoted capability.
     #[must_use]
-    pub const fn new(
-        registry: &'a PromotionRegistry,
-        capability: &'a str,
-        model_id: &'a str,
-    ) -> Self {
+    pub const fn new(promoted: bool, capability: &'a str, model_id: &'a str) -> Self {
         Self {
-            registry,
+            promoted,
             capability,
             model_id,
         }
@@ -86,10 +80,7 @@ impl ValidationRegistry for ExperimentValidationRegistry<'_> {
         if model_id != self.model_id || self.capability != "respiration-v1" {
             return Ok(false);
         }
-        Ok(matches!(
-            self.registry.history(self.capability).last(),
-            Some(PromotionDecision::Promoted { .. })
-        ))
+        Ok(self.promoted)
     }
 }
 

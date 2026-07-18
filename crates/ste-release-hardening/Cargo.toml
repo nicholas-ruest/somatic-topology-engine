@@ -1,18 +1,19 @@
 [package]
-name = "ste-physiology-estimation"
+name = "ste-release-hardening"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 publish.workspace = true
-description = "Physiology estimation bounded context"
+description = "Signed A/B updates, recovery, journal integrity, and incident evidence"
 
 [dependencies]
+chacha20poly1305.workspace = true
+ed25519-dalek.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
-ste-kernel.workspace = true
-ste-experiment-validation.workspace = true
+zeroize.workspace = true
 
 [lints]
 workspace = true

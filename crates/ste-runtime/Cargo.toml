@@ -25,6 +25,7 @@ ste-consent-governance.workspace = true
 
 [dev-dependencies]
 ed25519-dalek = { workspace = true, features = ["rand_core"] }
+ste-model-runtime.workspace = true
 
 [lints]
 workspace = true

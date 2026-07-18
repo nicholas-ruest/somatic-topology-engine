@@ -1,6 +1,5 @@
 //! Immutable repository and Experiment Validation registry integration tests.
 
-use ste_experiment_validation::domain::{ArtifactDigest, PromotionDecision, PromotionRegistry};
 use ste_physiology_estimation::{
     AtomicPhysiologyRepository, ExperimentValidationRegistry, PhysiologyRepositoryError,
     application::{PhysiologyAssessmentRepository, ValidationRegistry},
@@ -27,24 +26,11 @@ fn repository_is_idempotent_but_rejects_conflicting_replacement() {
 
 #[test]
 fn exact_latest_promotion_enables_only_the_bound_model_and_capability() {
-    let mut decisions = PromotionRegistry::default();
-    decisions
-        .append(
-            PromotionDecision::promoted(
-                "respiration-v1",
-                "study-1",
-                ArtifactDigest::new([9; 32]),
-                1,
-            )
-            .unwrap(),
-        )
-        .unwrap();
-    let adapter =
-        ExperimentValidationRegistry::new(&decisions, "respiration-v1", "resp-baseline-v1");
+    let adapter = ExperimentValidationRegistry::new(true, "respiration-v1", "resp-baseline-v1");
     assert!(adapter.respiration_is_promoted("resp-baseline-v1").unwrap());
     assert!(!adapter.respiration_is_promoted("different-model").unwrap());
     let wrong_capability =
-        ExperimentValidationRegistry::new(&decisions, "cardiac-v1", "resp-baseline-v1");
+        ExperimentValidationRegistry::new(true, "cardiac-v1", "resp-baseline-v1");
     assert!(
         !wrong_capability
             .respiration_is_promoted("resp-baseline-v1")
@@ -54,25 +40,6 @@ fn exact_latest_promotion_enables_only_the_bound_model_and_capability() {
 
 #[test]
 fn a_later_rejection_withdraws_promotion_fail_closed() {
-    let mut decisions = PromotionRegistry::default();
-    decisions
-        .append(
-            PromotionDecision::promoted(
-                "respiration-v1",
-                "study-1",
-                ArtifactDigest::new([1; 32]),
-                1,
-            )
-            .unwrap(),
-        )
-        .unwrap();
-    decisions
-        .append(
-            PromotionDecision::rejected("respiration-v1", "study-2", "resource gate failed", 2)
-                .unwrap(),
-        )
-        .unwrap();
-    let adapter =
-        ExperimentValidationRegistry::new(&decisions, "respiration-v1", "resp-baseline-v1");
+    let adapter = ExperimentValidationRegistry::new(false, "respiration-v1", "resp-baseline-v1");
     assert!(!adapter.respiration_is_promoted("resp-baseline-v1").unwrap());
 }
