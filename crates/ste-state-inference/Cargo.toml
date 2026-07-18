@@ -8,7 +8,13 @@ publish.workspace = true
 description = "State inference bounded context"
 
 [dependencies]
+serde.workspace = true
+ste-model-runtime.workspace = true
 ste-kernel.workspace = true
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+ed25519-dalek.workspace = true
+serde_json.workspace = true

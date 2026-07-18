@@ -1165,3 +1165,62 @@ where
         ModelLifecycleCommand::Rollback => operations.rollback(),
     }
 }
+
+/// Read-only approved state projection query.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StateProjectionCommand {
+    /// Opaque immutable assessment identifier.
+    pub assessment_id: String,
+}
+impl StateProjectionCommand {
+    /// Parses `projection <assessment-id>`.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, StateProjectionCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let args = arguments
+            .into_iter()
+            .map(|v| v.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        match args.as_slice() {
+            [verb, id] if verb == "projection" && !id.trim().is_empty() && id.len() <= 256 => {
+                Ok(Self {
+                    assessment_id: id.clone(),
+                })
+            }
+            _ => Err(StateProjectionCommandError::InvalidArguments),
+        }
+    }
+}
+/// Safe projection application boundary.
+pub trait StateProjectionOperations {
+    /// Returns only fixed DisplayProjectionV1/unavailable JSON.
+    fn projection(&self, assessment_id: &str) -> Result<String, StateProjectionCommandError>;
+}
+/// Stable state projection query failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum StateProjectionCommandError {
+    /// Invalid syntax.
+    InvalidArguments,
+    /// Fresh authorization absent.
+    AuthorizationRequired,
+    /// Approved projection unavailable.
+    ProjectionUnavailable,
+}
+/// Authorizes immediately before reading an approved projection.
+pub fn execute_state_projection<E, P>(
+    command: &StateProjectionCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    projections: &P,
+) -> Result<String, StateProjectionCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    P: StateProjectionOperations,
+{
+    gate.authorize_command(request, origin, PrivilegedCommand::ViewStateProjection)
+        .map_err(|_| StateProjectionCommandError::AuthorizationRequired)?;
+    projections.projection(&command.assessment_id)
+}

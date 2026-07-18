@@ -15,7 +15,7 @@ only after its required tests and validation pass.
 - [x] Phase 09 — Implement Experiment Validation and dataset governance
 - [x] Phase 10 — Implement and validate respiration-first Physiology Estimation
 - [x] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
-- [ ] Phase 12 — Implement State Inference without unsupported claims
+- [x] Phase 12 — Implement State Inference without unsupported claims
 - [ ] Phase 13 — Implement Personalization Memory and constrained adaptation
 - [ ] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
 - [ ] Phase 15 — Implement secure CLI, commissioning, and site qualification
@@ -88,3 +88,9 @@ only after its required tests and validation pass.
 - Ed25519-signed, content-addressed packages bind weights, feature/preprocessing/calibration digests, model card, lineage, licensing, and exact software/hardware compatibility; adversarial fixtures fail closed.
 - The registry preserves immutable quarantine-to-revocation decisions, permits serving only from an active promoted package, and atomically activates, suspends, and rolls back with known-answer verification.
 - Frozen calibration, OOD/selective-risk evaluation, signed capability policy, governed CLI operations, and experimental isolation pass workspace gates; Pi HIL, thermal, and soak qualification remain pending reference hardware.
+
+## Phase 12 evidence
+
+- State assessments support only a no-claim baseline and specifically promoted task-workload constructs; valence and decision-phase production variants do not exist.
+- Sixteen domain, temporal replay, validation, repository, and projection tests enforce evidence lineage, debounce/staleness, OOD abstention, capability policy, and experimental isolation.
+- The sole UI projection exposes approved bands or typed unavailability without raw scores or evidence payloads; no trained cognitive model is claimed and Pi/human-validity gates remain pending.

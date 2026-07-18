@@ -21,6 +21,7 @@ ste-observability.workspace = true
 ste-experiment-validation.workspace = true
 ste-physiology-estimation.workspace = true
 ste-model-runtime.workspace = true
+ste-state-inference.workspace = true
 serde_json.workspace = true
 
 [lints]

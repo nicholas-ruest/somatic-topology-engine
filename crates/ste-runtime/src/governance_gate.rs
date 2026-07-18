@@ -58,6 +58,8 @@ pub enum PrivilegedCommand {
     ViewModelLifecycle,
     /// Mutate verified model lifecycle state.
     MutateModelLifecycle,
+    /// View a policy-approved state projection without raw model output.
+    ViewStateProjection,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.

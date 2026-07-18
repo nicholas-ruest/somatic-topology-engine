@@ -684,6 +684,7 @@ dependencies = [
  "ste-radio-acquisition",
  "ste-runtime",
  "ste-signal-observation",
+ "ste-state-inference",
  "ste-storage",
 ]
 
@@ -815,7 +816,11 @@ dependencies = [
 name = "ste-state-inference"
 version = "0.1.0"
 dependencies = [
+ "ed25519-dalek",
+ "serde",
+ "serde_json",
  "ste-kernel",
+ "ste-model-runtime",
 ]
 
 [[package]]
