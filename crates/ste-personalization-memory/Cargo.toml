@@ -8,7 +8,10 @@ publish.workspace = true
 description = "Personalization memory bounded context"
 
 [dependencies]
+serde.workspace = true
 ste-kernel.workspace = true
+chacha20poly1305.workspace = true
+rand_core.workspace = true
 
 [lints]
 workspace = true

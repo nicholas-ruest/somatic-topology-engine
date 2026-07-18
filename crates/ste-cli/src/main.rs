@@ -3,8 +3,8 @@
 use std::process::ExitCode;
 
 use ste_cli::{
-    DiagnosticsCommand, ModelLifecycleCommand, ObservationReplayCommand, ReplayCommand,
-    RespirationCommand, StateProjectionCommand, StorageCommand, ValidationCommand,
+    DiagnosticsCommand, MemoryCommand, ModelLifecycleCommand, ObservationReplayCommand,
+    ReplayCommand, RespirationCommand, StateProjectionCommand, StorageCommand, ValidationCommand,
 };
 
 fn main() -> ExitCode {
@@ -77,6 +77,14 @@ fn main() -> ExitCode {
     if arguments.first().map(String::as_str) == Some("state") {
         if StateProjectionCommand::parse(&arguments[1..]).is_err() {
             eprintln!("invalid state projection command arguments");
+            return ExitCode::from(2);
+        }
+        eprintln!("active authorization required");
+        return ExitCode::from(77);
+    }
+    if arguments.first().map(String::as_str) == Some("memory") {
+        if MemoryCommand::parse(&arguments[1..]).is_err() {
+            eprintln!("invalid memory command arguments");
             return ExitCode::from(2);
         }
         eprintln!("active authorization required");

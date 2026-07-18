@@ -60,6 +60,12 @@ pub enum PrivilegedCommand {
     MutateModelLifecycle,
     /// View a policy-approved state projection without raw model output.
     ViewStateProjection,
+    /// View participant-scoped anchor provenance.
+    ViewPersonalization,
+    /// Append participant feedback/corrections.
+    MutatePersonalization,
+    /// Cryptographically erase participant memory and rebuild indexes.
+    ErasePersonalization,
 }
 
 /// Safe participant-visible/runtime state of the governance gate.

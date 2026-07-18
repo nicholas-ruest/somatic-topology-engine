@@ -1224,3 +1224,142 @@ where
         .map_err(|_| StateProjectionCommandError::AuthorizationRequired)?;
     projections.projection(&command.assessment_id)
 }
+
+/// Participant-scoped personalization operation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum MemoryCommand {
+    /// View anchors and provenance.
+    View {
+        /// Participant pseudonym.
+        participant: String,
+    },
+    /// Append a linked correction.
+    Correct {
+        /// Participant pseudonym.
+        participant: String,
+        /// Prior feedback identity.
+        corrects: String,
+        /// Finite reward string parsed by service.
+        reward: String,
+    },
+    /// Cryptographically erase with explicit confirmation.
+    Delete {
+        /// Participant pseudonym.
+        participant: String,
+        /// Required destructive confirmation.
+        confirmed: bool,
+    },
+}
+impl MemoryCommand {
+    /// Parses bounded view/correct/delete commands.
+    pub fn parse<I, S>(arguments: I) -> Result<Self, MemoryCommandError>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let a = arguments
+            .into_iter()
+            .map(|v| v.as_ref().to_owned())
+            .collect::<Vec<_>>();
+        match a.as_slice() {
+            [v, p] if v == "view" && !p.trim().is_empty() => Ok(Self::View {
+                participant: p.clone(),
+            }),
+            [v, p, c, r]
+                if v == "correct"
+                    && !p.trim().is_empty()
+                    && !c.trim().is_empty()
+                    && r.parse::<f32>().is_ok() =>
+            {
+                Ok(Self::Correct {
+                    participant: p.clone(),
+                    corrects: c.clone(),
+                    reward: r.clone(),
+                })
+            }
+            [v, p, flag] if v == "delete" && !p.trim().is_empty() && flag == "--confirm" => {
+                Ok(Self::Delete {
+                    participant: p.clone(),
+                    confirmed: true,
+                })
+            }
+            [v, p] if v == "delete" && !p.trim().is_empty() => Ok(Self::Delete {
+                participant: p.clone(),
+                confirmed: false,
+            }),
+            _ => Err(MemoryCommandError::InvalidArguments),
+        }
+    }
+}
+/// Authenticated participant-memory service.
+pub trait MemoryOperations {
+    /// Returns participant-scoped provenance only.
+    fn view(&self, participant: &str) -> Result<String, MemoryCommandError>;
+    /// Appends correction.
+    fn correct(
+        &self,
+        participant: &str,
+        corrects: &str,
+        reward: f32,
+    ) -> Result<String, MemoryCommandError>;
+    /// Erases keys/payloads and rebuilds index.
+    fn delete(&self, participant: &str) -> Result<String, MemoryCommandError>;
+}
+/// Stable memory command failure.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MemoryCommandError {
+    /// Invalid syntax.
+    InvalidArguments,
+    /// Fresh authorization absent.
+    AuthorizationRequired,
+    /// Explicit confirmation absent.
+    ConfirmationRequired,
+    /// Scoped memory operation failed.
+    OperationFailed,
+}
+/// Authorizes immediately before scoped view, append, or erasure.
+pub fn execute_memory_command<E, M>(
+    command: &MemoryCommand,
+    request: &AuthorizationRequest,
+    origin: RequestOrigin,
+    gate: &GovernanceGate<E>,
+    memory: &M,
+) -> Result<String, MemoryCommandError>
+where
+    E: Fn(&AuthorizationRequest) -> PolicyDecision,
+    M: MemoryOperations,
+{
+    let privileged = match command {
+        MemoryCommand::View { .. } => PrivilegedCommand::ViewPersonalization,
+        MemoryCommand::Correct { .. } => PrivilegedCommand::MutatePersonalization,
+        MemoryCommand::Delete {
+            confirmed: false, ..
+        } => return Err(MemoryCommandError::ConfirmationRequired),
+        MemoryCommand::Delete {
+            confirmed: true, ..
+        } => PrivilegedCommand::ErasePersonalization,
+    };
+    gate.authorize_command(request, origin, privileged)
+        .map_err(|_| MemoryCommandError::AuthorizationRequired)?;
+    match command {
+        MemoryCommand::View { participant } => memory.view(participant),
+        MemoryCommand::Correct {
+            participant,
+            corrects,
+            reward,
+        } => memory.correct(
+            participant,
+            corrects,
+            reward
+                .parse()
+                .map_err(|_| MemoryCommandError::InvalidArguments)?,
+        ),
+        MemoryCommand::Delete {
+            participant,
+            confirmed: true,
+        } => memory.delete(participant),
+        MemoryCommand::Delete {
+            confirmed: false, ..
+        } => Err(MemoryCommandError::ConfirmationRequired),
+    }
+}

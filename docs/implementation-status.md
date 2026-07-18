@@ -16,7 +16,7 @@ only after its required tests and validation pass.
 - [x] Phase 10 — Implement and validate respiration-first Physiology Estimation
 - [x] Phase 11 — Build model packaging, registry, uncertainty, and capability policy
 - [x] Phase 12 — Implement State Inference without unsupported claims
-- [ ] Phase 13 — Implement Personalization Memory and constrained adaptation
+- [x] Phase 13 — Implement Personalization Memory and constrained adaptation
 - [ ] Phase 14 — Implement CrowPi Device Interaction and deterministic projections
 - [ ] Phase 15 — Implement secure CLI, commissioning, and site qualification
 - [ ] Phase 16 — Add optional TypeScript sidecars without weakening the core
@@ -94,3 +94,9 @@ only after its required tests and validation pass.
 - State assessments support only a no-claim baseline and specifically promoted task-workload constructs; valence and decision-phase production variants do not exist.
 - Sixteen domain, temporal replay, validation, repository, and projection tests enforce evidence lineage, debounce/staleness, OOD abstention, capability policy, and experimental isolation.
 - The sole UI projection exposes approved bands or typed unavailability without raw scores or evidence payloads; no trained cognitive model is claimed and Pi/human-validity gates remain pending.
+
+## Phase 13 evidence
+
+- Participant-scoped types, encrypted append-only vector records, and deterministic retrieval prevent cross-participant queries and evaluation-partition updates by construction and tests.
+- Adaptation candidates require quality-qualified evidence, exact lineage, rate limits, sandboxing, and prospective held-out improvement before promotion, with rollback preserved.
+- Governed view/correct/delete flows destroy participant key material and rebuild derived indexes; the Rust reference adapter is qualified, while RuVector/RVF and Pi benchmarks remain explicitly pending.
